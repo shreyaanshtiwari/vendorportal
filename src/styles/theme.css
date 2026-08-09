@@ -1,0 +1,77 @@
+/* SwadDesh Vendor Portal Theme */
+
+:root {
+  /* Royal Theme Colors */
+  --royal-maroon: #4F5D2F; /* Deep Olive */
+  --royal-maroon-light: #647242;
+  --royal-maroon-hover: #3B4623;
+  
+  --royal-cream: #fffcf5;
+  --royal-cream-dark: #EAE0CD;
+  --royal-cream-darker: #f8eddb;
+  
+  --royal-gold: #C9A14A;
+  --royal-gold-dark: #AA873C;
+  --royal-gold-light: #E3BF6B;
+  
+  --royal-text-dark: #2A1713;
+  --royal-text-gray: #6E5A53;
+  
+  --royal-border: #e6d5c3;
+  --royal-gold-border: #e0c080;
+  
+  /* Utilities */
+  --royal-transition: all 0.3s ease;
+  
+  /* Status Colors */
+  --status-pending-bg: #fff3cd;
+  --status-pending-text: #856404;
+  --status-confirmed-bg: #d4edda;
+  --status-confirmed-text: #155724;
+  --status-shipped-bg: #cce5ff;
+  --status-shipped-text: #004085;
+  --status-delivered-bg: #d4edda;
+  --status-delivered-text: #155724;
+  
+  /* Stats colors */
+  --stat-green: #28a745;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-jakarta), sans-serif;
+  background-color: var(--royal-cream);
+  color: var(--royal-text-dark);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .royal-heading {
+  font-family: var(--font-jakarta), sans-serif;
+  color: var(--royal-maroon);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Base Cards */
+.royal-card {
+  background: #ffffff;
+  border: 1px solid var(--royal-border);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  transition: var(--royal-transition);
+}
+
+.royal-card:hover {
+  border-color: var(--royal-gold);
+  box-shadow: 0 8px 25px rgba(107, 10, 9, 0.05);
+  transform: translateY(-2px);
+}
