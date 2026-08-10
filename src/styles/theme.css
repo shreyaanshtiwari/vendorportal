@@ -3,22 +3,22 @@
 :root {
   /* Royal Theme Colors */
   --royal-maroon: #4F5D2F; /* Deep Olive */
-  --royal-maroon-light: #647242;
+  --royal-maroon-light: #6A7B42;
   --royal-maroon-hover: #3B4623;
   
-  --royal-cream: #fffcf5;
-  --royal-cream-dark: #EAE0CD;
-  --royal-cream-darker: #f8eddb;
+  --royal-cream: #FDFBF7;
+  --royal-cream-dark: #F3EDE3;
+  --royal-cream-darker: #E6DCB8;
   
   --royal-gold: #C9A14A;
-  --royal-gold-dark: #AA873C;
-  --royal-gold-light: #E3BF6B;
+  --royal-gold-dark: #A8863D;
+  --royal-gold-light: #E3C173;
   
-  --royal-text-dark: #2A1713;
-  --royal-text-gray: #6E5A53;
+  --royal-text-dark: #2A3318;
+  --royal-text-gray: #757F5D;
   
-  --royal-border: #e6d5c3;
-  --royal-gold-border: #e0c080;
+  --royal-border: #E8EBE1;
+  --royal-gold-border: #D6DDC5;
   
   /* Utilities */
   --royal-transition: all 0.3s ease;

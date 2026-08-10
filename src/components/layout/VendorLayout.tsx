@@ -37,6 +37,7 @@ const VendorLayout: React.FC<VendorLayoutProps> = ({ children }) => {
   
   const isHome = pathname === '/';
   const isLoginPage = pathname === '/login';
+  const isRegisterPage = pathname === '/register';
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -82,23 +83,51 @@ const VendorLayout: React.FC<VendorLayoutProps> = ({ children }) => {
   };
 
   React.useEffect(() => {
-    // Basic client-side auth check
     const token = localStorage.getItem('vendor_token');
-    
-    if (!token && pathname !== '/login') {
-      router.push('/login');
-    } else {
-      setIsAuthenticated(true);
+
+    // No token at all → go to login
+    if (!token) {
+      if (pathname !== '/login' && pathname !== '/register') {
+        router.push('/login');
+      } else {
+        setIsAuthenticated(true);
+      }
+      return;
     }
+
+    // Skip validation on auth pages
+    if (pathname === '/login' || pathname === '/register') {
+      setIsAuthenticated(true);
+      return;
+    }
+
+    // Validate token with backend
+    fetch('http://localhost:8080/api/vendor/validate-token', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => {
+        if (res.ok) {
+          setIsAuthenticated(true);
+        } else {
+          // Token invalid or expired
+          localStorage.removeItem('vendor_token');
+          localStorage.removeItem('vendor_profile');
+          router.push('/login');
+        }
+      })
+      .catch(() => {
+        // Backend unreachable — allow access to avoid blocking on server down
+        setIsAuthenticated(true);
+      });
   }, [pathname, router]);
 
-  // Don't render layout elements for the login page
-  if (isLoginPage) {
+  // Don't render layout elements for auth pages
+  if (isLoginPage || isRegisterPage) {
     return <>{children}</>;
   }
 
   // Prevent flash of content before auth check completes
-  if (isAuthenticated === null && pathname !== '/login') {
+  if (isAuthenticated === null && pathname !== '/login' && pathname !== '/register') {
     return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--royal-cream)' }}>Loading...</div>;
   }
 

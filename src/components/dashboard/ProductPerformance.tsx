@@ -56,9 +56,17 @@ const ProductPerformance = () => {
 
       {!isLoading && !error && (
         <div className="products-list">
-          {products.length > 0 ? products.map(product => (
+          {products.length > 0 ? products.map((product, index) => {
+            const fallbackImages = [
+              'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&q=80&w=200',
+              'https://images.unsplash.com/photo-1589301760014-d929f39ce9b1?auto=format&fit=crop&q=80&w=200',
+              'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=200',
+              'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=200'
+            ];
+            const displayImg = product.img || fallbackImages[index % fallbackImages.length];
+            return (
             <div key={product.id} className="product-item">
-              <img src={product.img || 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&q=80&w=200'} alt={product.name} className="product-img" />
+              <img src={displayImg} alt={product.name} className="product-img" />
               <div className="product-info">
                 <h5>{product.name}</h5>
                 <p>{product.price}/{product.unit}</p>
@@ -68,7 +76,8 @@ const ProductPerformance = () => {
                 <span className="growth">↑ {product.growth}</span>
               </div>
             </div>
-          )) : (
+            );
+          }) : (
             <div style={{ padding: '20px', textAlign: 'center', color: 'var(--royal-text-gray)' }}>
               No top products to display.
             </div>
