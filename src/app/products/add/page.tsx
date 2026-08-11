@@ -14,12 +14,8 @@ export default function AddProductPage() {
   
   const [form, setForm] = useState({
     name: '',
-    category: '',
     region: '',
-    state: '',
-    taste: '',
-    shelf_life: '',
-    ingredients: '',
+    vendor_price: '',
   });
 
   const handleChange = (field: string, value: string) => {
@@ -39,14 +35,16 @@ export default function AddProductPage() {
     try {
       const productData: any = {
         name: form.name,
-        category: form.category || null,
         region: form.region || null,
-        state: form.state || null,
-        taste: form.taste || null,
-        shelf_life: form.shelf_life || null,
-        ingredients: form.ingredients || null,
-        // Default values for removed fields to avoid db constraints
+        vendor_price: parseFloat(form.vendor_price) || 0,
+        // Defaults for Admin to fill later
+        category: null,
+        state: null,
+        taste: null,
+        shelf_life: null,
+        ingredients: null,
         price: 0,
+        original_price: 0,
         stock: 0,
         image_url: "", 
       };
@@ -112,29 +110,7 @@ export default function AddProductPage() {
           />
         </div>
 
-        {/* Category */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Category</label>
-          <div style={{ position: 'relative' }}>
-            <select 
-              value={form.category}
-              onChange={(e) => handleChange('category', e.target.value)}
-              style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
-            >
-              <option value="">Select category</option>
-              <option value="Sweets">Sweets</option>
-              <option value="Snacks">Snacks</option>
-              <option value="Namkeen">Namkeen</option>
-              <option value="Pickles">Pickles</option>
-              <option value="Spices">Spices</option>
-              <option value="Beverages">Beverages</option>
-              <option value="Other">Other</option>
-            </select>
-            <ChevronDown size={18} color="var(--royal-text-gray)" style={{ position: 'absolute', right: '16px', top: '14px', pointerEvents: 'none' }} />
-          </div>
-        </div>
-
-        {/* Region & State Row */}
+        {/* Region & Vendor Price Row */}
         <div style={{ display: 'flex', gap: '12px' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Region</label>
@@ -147,51 +123,15 @@ export default function AddProductPage() {
             />
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>State</label>
+            <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Your Cost Price (₹)</label>
             <input 
-              type="text" 
-              placeholder="e.g. Bihar" 
-              value={form.state}
-              onChange={(e) => handleChange('state', e.target.value)}
+              type="number" 
+              placeholder="e.g. 400" 
+              value={form.vendor_price}
+              onChange={(e) => handleChange('vendor_price', e.target.value)}
               style={inputStyle}
             />
           </div>
-        </div>
-
-        {/* Taste & Shelf Life Row */}
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Taste</label>
-            <input 
-              type="text" 
-              placeholder="e.g. Sweet, Spicy" 
-              value={form.taste}
-              onChange={(e) => handleChange('taste', e.target.value)}
-              style={inputStyle}
-            />
-          </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Shelf Life</label>
-            <input 
-              type="text" 
-              placeholder="e.g. 15 days" 
-              value={form.shelf_life}
-              onChange={(e) => handleChange('shelf_life', e.target.value)}
-              style={inputStyle}
-            />
-          </div>
-        </div>
-
-        {/* Ingredients */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Ingredients</label>
-          <input 
-            type="text" 
-            placeholder="e.g. Wheat flour, Jaggery, Ghee" 
-            value={form.ingredients}
-            onChange={(e) => handleChange('ingredients', e.target.value)}
-            style={inputStyle}
-          />
         </div>
 
         {/* Save Button */}
