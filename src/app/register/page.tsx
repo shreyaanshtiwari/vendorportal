@@ -28,14 +28,9 @@ interface FormData {
 
 const INITIAL_FORM: FormData = {
   ownerName: '', email: '', phone: '', password: '', confirmPassword: '',
-  storeName: '', businessType: '', gstNumber: '',
+  storeName: '', businessType: 'Grocery & Food', gstNumber: '',
   address: '', city: '', state: '', pincode: '',
 };
-
-const BUSINESS_TYPES = [
-  'Grocery & Food', 'Clothing & Apparel', 'Electronics', 'Home & Kitchen',
-  'Handicrafts', 'Beauty & Personal Care', 'Health & Wellness', 'Other',
-];
 
 const STEPS = [
   { number: 1, label: 'Personal Info', icon: <User size={16} /> },
@@ -67,7 +62,6 @@ export default function VendorRegisterPage() {
     }
     if (step === 2) {
       if (!form.storeName.trim()) return 'Store name is required.';
-      if (!form.businessType) return 'Please select a business type.';
     }
     if (step === 3) {
       if (!form.address.trim()) return 'Address is required.';
@@ -116,7 +110,9 @@ export default function VendorRegisterPage() {
       });
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
+      let msg = err.message || 'Registration failed. Please try again.';
+      msg = msg.replace(/^API request failed \[[^\]]+\]:\s*/, '');
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
@@ -127,14 +123,14 @@ export default function VendorRegisterPage() {
     return (
       <div style={{
         minHeight: '100vh', display: 'flex', alignItems: 'center',
-        justifyContent: 'center', background: 'var(--royal-cream)',
+        justifyContent: 'center', background: 'var(--royal-cream, #fefcfb)',
         fontFamily: 'var(--font-jakarta), sans-serif',
       }}>
         <div style={{
           background: 'white', borderRadius: '24px', padding: '56px 48px',
           maxWidth: '480px', width: '100%', textAlign: 'center',
           boxShadow: '0 20px 60px rgba(0,0,0,0.08)',
-          border: '1px solid var(--royal-border)',
+          border: '1px solid var(--royal-border, #e5e7eb)',
         }}>
           <div style={{
             width: '80px', height: '80px',
@@ -146,20 +142,24 @@ export default function VendorRegisterPage() {
           }}>
             <CheckCircle2 size={40} color="white" />
           </div>
-          <h2 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--royal-text-dark)', margin: '0 0 12px' }}>
+          <h2 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--royal-text-dark, #111827)', margin: '0 0 12px' }}>
             Registration Submitted!
           </h2>
-          <p style={{ fontSize: '15px', color: 'var(--royal-text-gray)', margin: '0 0 32px', lineHeight: 1.6 }}>
+          <p style={{ fontSize: '15px', color: 'var(--royal-text-gray, #6b7280)', margin: '0 0 32px', lineHeight: 1.6 }}>
             Your vendor application has been received. Our team will review your details and send you an approval email within <strong>24–48 hours</strong>.
           </p>
           <Link href="/login" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             padding: '14px 32px',
-            background: 'linear-gradient(135deg, var(--royal-maroon), var(--royal-maroon-hover))',
+            background: 'var(--royal-maroon, #4F5D2F)',
             color: 'white', borderRadius: '12px', fontWeight: 700,
             fontSize: '15px', textDecoration: 'none',
-            boxShadow: '0 4px 15px rgba(79,93,47,0.35)',
-          }}>
+            boxShadow: '0 4px 15px rgba(79, 93, 47, 0.35)',
+            transition: 'background 0.2s',
+          }}
+          onMouseOver={(e) => { e.currentTarget.style.background = 'var(--royal-maroon-hover, #3B4623)'; }}
+          onMouseOut={(e) => { e.currentTarget.style.background = 'var(--royal-maroon, #4F5D2F)'; }}
+          >
             Go to Sign In <ArrowRight size={18} />
           </Link>
         </div>
@@ -177,11 +177,11 @@ export default function VendorRegisterPage() {
         {[...Array(4)].map((_, i) => (
           <div key={i} style={{
             flex: 1, height: '4px', borderRadius: '4px',
-            background: i < strength ? color : 'var(--royal-border)',
+            background: i < strength ? color : 'var(--royal-border, #e5e7eb)',
             transition: 'background 0.2s',
           }} />
         ))}
-        <span style={{ fontSize: '11px', color: 'var(--royal-text-gray)', whiteSpace: 'nowrap', minWidth: '32px' }}>{label}</span>
+        <span style={{ fontSize: '11px', color: 'var(--royal-text-gray, #6b7280)', whiteSpace: 'nowrap', minWidth: '32px' }}>{label}</span>
       </div>
     );
   };
@@ -207,43 +207,24 @@ export default function VendorRegisterPage() {
           width: 100%;
           padding: 13px 16px;
           border-radius: 12px;
-          border: 1.5px solid var(--royal-border);
+          border: 1.5px solid var(--royal-border, #e5e7eb);
           background: white;
           font-size: 15px;
-          color: var(--royal-text-dark);
+          color: var(--royal-text-dark, #111827);
           outline: none;
           font-family: var(--font-jakarta), sans-serif;
           transition: border-color 0.2s ease, box-shadow 0.2s ease;
           box-sizing: border-box;
         }
         .reg-input-field:focus {
-          border-color: var(--royal-maroon);
-          box-shadow: 0 0 0 3px rgba(92, 18, 23, 0.12);
+          border-color: var(--royal-maroon, #4F5D2F);
+          box-shadow: 0 0 0 3px rgba(79, 93, 47, 0.12);
         }
         .reg-input-field::placeholder { color: #a0a0a0; }
-        .reg-select-field {
-          width: 100%;
-          padding: 13px 40px 13px 16px;
-          border-radius: 12px;
-          border: 1.5px solid var(--royal-border);
-          background: white;
-          font-size: 15px;
-          color: var(--royal-text-dark);
-          outline: none;
-          font-family: var(--font-jakarta), sans-serif;
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
-          appearance: none;
-          cursor: pointer;
-          box-sizing: border-box;
-        }
-        .reg-select-field:focus {
-          border-color: var(--royal-maroon);
-          box-shadow: 0 0 0 3px rgba(92, 18, 23, 0.12);
-        }
         .reg-primary-btn {
           flex: 1;
           padding: 15px;
-          background: linear-gradient(135deg, var(--royal-maroon) 0%, var(--royal-maroon-hover) 100%);
+          background: var(--royal-maroon, #4F5D2F);
           color: white;
           border: none;
           border-radius: 12px;
@@ -255,19 +236,20 @@ export default function VendorRegisterPage() {
           align-items: center;
           justify-content: center;
           gap: 8px;
-          transition: transform 0.15s ease, box-shadow 0.15s ease;
-          box-shadow: 0 4px 15px rgba(92, 18, 23, 0.35);
+          transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+          box-shadow: 0 4px 15px rgba(79, 93, 47, 0.35);
         }
         .reg-primary-btn:hover:not(:disabled) {
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(92, 18, 23, 0.45);
+          background: var(--royal-maroon-hover, #3B4623);
+          box-shadow: 0 8px 24px rgba(79, 93, 47, 0.45);
         }
         .reg-primary-btn:disabled { opacity: 0.75; cursor: not-allowed; }
         .reg-back-btn {
           padding: 14px 20px;
-          background: var(--royal-cream);
-          color: var(--royal-text-dark);
-          border: 1.5px solid var(--royal-border);
+          background: var(--royal-cream, #fefcfb);
+          color: var(--royal-text-dark, #111827);
+          border: 1.5px solid var(--royal-border, #e5e7eb);
           border-radius: 12px;
           font-size: 15px;
           font-weight: 600;
@@ -279,8 +261,8 @@ export default function VendorRegisterPage() {
           transition: all 0.15s ease;
         }
         .reg-back-btn:hover {
-          border-color: var(--royal-maroon);
-          color: var(--royal-maroon);
+          border-color: var(--royal-maroon, #5c1217);
+          color: var(--royal-maroon, #5c1217);
         }
         .reg-eye-btn {
           background: none;
@@ -290,27 +272,27 @@ export default function VendorRegisterPage() {
           right: 14px;
           top: 50%;
           transform: translateY(-50%);
-          color: var(--royal-text-gray);
+          color: var(--royal-text-gray, #6b7280);
           display: flex;
           align-items: center;
           padding: 2px;
           transition: color 0.2s;
         }
-        .reg-eye-btn:hover { color: var(--royal-maroon); }
+        .reg-eye-btn:hover { color: var(--royal-maroon, #5c1217); }
         @media (max-width: 768px) {
           .reg-auth-left-panel { display: none !important; }
         }
       `}</style>
 
       <div style={{
-        minHeight: '100vh', display: 'flex',
-        background: 'var(--royal-cream)',
+        height: '100vh', display: 'flex', overflow: 'hidden',
+        background: 'var(--royal-cream, #fefcfb)',
         fontFamily: 'var(--font-jakarta), sans-serif',
       }}>
         {/* Left Panel */}
         <div className="reg-auth-left-panel" style={{
-          flex: '1',
-          background: 'linear-gradient(145deg, var(--royal-maroon) 0%, #4A0E13 50%, var(--royal-maroon-hover) 100%)',
+          flex: '1', height: '100%',
+          background: 'var(--royal-maroon, #4F5D2F)',
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
           padding: '48px', position: 'relative', overflow: 'hidden',
@@ -332,19 +314,16 @@ export default function VendorRegisterPage() {
           <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', marginBottom: '48px' }}>
             <div style={{
               width: '72px', height: '72px',
-              background: 'linear-gradient(135deg, var(--royal-gold) 0%, var(--royal-gold-dark) 100%)',
+              background: 'var(--royal-gold, #C9A14A)',
               borderRadius: '20px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 20px',
               boxShadow: '0 8px 32px rgba(212, 155, 53, 0.4)',
             }}>
-              <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-                <path d="M18 4L32 12V24L18 32L4 24V12L18 4Z" fill="white" fillOpacity="0.9" />
-                <path d="M18 10L26 15V25L18 30L10 25V15L18 10Z" fill="white" fillOpacity="0.4" />
-              </svg>
+              <Store size={36} color="white" />
             </div>
-            <h1 style={{ color: 'white', fontSize: '28px', fontWeight: 800, margin: '0 0 8px' }}>SwadDesh</h1>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '15px', margin: 0 }}>Vendor Partner Portal</p>
+            <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 800, margin: '0 0 8px' }}>SwadDesh</h1>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0, fontWeight: 500 }}>Vendor Partner Portal</p>
           </div>
 
           {/* Step indicators */}
@@ -365,14 +344,14 @@ export default function VendorRegisterPage() {
                 }}>
                   <div style={{
                     width: '36px', height: '36px', borderRadius: '50%',
-                    background: isDone ? '#22c55e' : isActive ? 'var(--royal-gold)' : 'rgba(255,255,255,0.12)',
+                    background: isDone ? '#22c55e' : isActive ? 'var(--royal-gold, #d49b35)' : 'rgba(255,255,255,0.12)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0, transition: 'all 0.3s ease',
                     boxShadow: isActive ? '0 4px 12px rgba(212, 155, 53, 0.5)' : 'none',
                   }}>
                     {isDone
                       ? <CheckCircle2 size={18} color="white" />
-                      : <span style={{ color: isActive ? 'var(--royal-text-dark)' : 'rgba(255,255,255,0.5)', fontSize: '13px', fontWeight: 700 }}>{s.number}</span>
+                      : <span style={{ color: isActive ? 'var(--royal-text-dark, #111827)' : 'rgba(255,255,255,0.5)', fontSize: '13px', fontWeight: 700 }}>{s.number}</span>
                     }
                   </div>
                   <div>
@@ -401,38 +380,44 @@ export default function VendorRegisterPage() {
 
         {/* Right Panel */}
         <div style={{
-          width: '100%', maxWidth: '580px',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '48px 40px',
+          width: '100%', maxWidth: '580px', height: '100%',
+          display: 'flex', flexDirection: 'column',
           background: 'white',
           boxShadow: '-8px 0 40px rgba(0,0,0,0.06)',
           overflowY: 'auto',
         }}>
-          <div className="reg-panel" style={{ width: '100%', maxWidth: '460px' }}>
+          <div style={{
+             margin: 'auto 0',
+             padding: '48px 40px',
+             width: '100%',
+             display: 'flex',
+             justifyContent: 'center'
+          }}>
+            <div className="reg-panel" style={{ width: '100%', maxWidth: '460px' }}>
             {/* Header */}
             <div style={{ marginBottom: '28px' }}>
               <span style={{
                 display: 'inline-block', padding: '4px 12px',
-                background: 'rgba(92, 18, 23, 0.1)',
+                background: 'rgba(79, 93, 47, 0.1)',
                 borderRadius: '100px', fontSize: '12px', fontWeight: 700,
-                color: 'var(--royal-maroon)', letterSpacing: '0.5px', marginBottom: '12px',
+                color: 'var(--royal-maroon, #4F5D2F)', letterSpacing: '0.5px', marginBottom: '12px',
               }}>
                 Step {step} of 3
               </span>
-              <h2 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--royal-text-dark)', margin: '0 0 8px', lineHeight: 1.2 }}>
+              <h2 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--royal-text-dark, #111827)', margin: '0 0 8px', lineHeight: 1.2 }}>
                 {step === 1 ? 'Create your account' : step === 2 ? 'Tell us about your business' : 'Where are you located?'}
               </h2>
-              <p style={{ fontSize: '14px', color: 'var(--royal-text-gray)', margin: 0 }}>
+              <p style={{ fontSize: '14px', color: 'var(--royal-text-gray, #6b7280)', margin: 0 }}>
                 {step === 1 ? 'Start your journey as a SwadDesh vendor partner.' : step === 2 ? 'Help customers discover your store.' : 'Provide your store address for delivery coordination.'}
               </p>
             </div>
 
             {/* Progress Bar */}
-            <div style={{ marginBottom: '24px', background: 'var(--royal-border)', borderRadius: '100px', height: '5px' }}>
+            <div style={{ marginBottom: '24px', background: 'var(--royal-border, #e5e7eb)', borderRadius: '100px', height: '5px' }}>
               <div style={{
                 width: `${(step / 3) * 100}%`,
                 height: '100%',
-                background: 'linear-gradient(90deg, var(--royal-maroon), var(--royal-gold))',
+                background: 'var(--royal-maroon, #4F5D2F)',
                 borderRadius: '100px',
                 transition: 'width 0.4s ease',
               }} />
@@ -455,19 +440,19 @@ export default function VendorRegisterPage() {
             {step === 1 && (
               <div className="reg-step-panel" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Full Name</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark, #111827)' }}>Full Name</label>
                   <input id="ownerName" type="text" placeholder="Rajesh Kumar" value={form.ownerName} onChange={set('ownerName')} required className="reg-input-field" onFocus={() => setFocusedField('ownerName')} onBlur={() => setFocusedField(null)} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Email Address</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark, #111827)' }}>Email Address</label>
                   <input id="email" type="email" placeholder="rajesh@example.com" value={form.email} onChange={set('email')} required className="reg-input-field" onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField(null)} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Phone Number</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark, #111827)' }}>Phone Number</label>
                   <input id="phone" type="tel" placeholder="9876543210" value={form.phone} onChange={set('phone')} required className="reg-input-field" onFocus={() => setFocusedField('phone')} onBlur={() => setFocusedField(null)} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Password</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark, #111827)' }}>Password</label>
                   <div style={{ position: 'relative' }}>
                     <input
                       id="password"
@@ -482,13 +467,13 @@ export default function VendorRegisterPage() {
                       onBlur={() => setFocusedField(null)}
                     />
                     <button type="button" className="reg-eye-btn" onClick={() => setShowPassword(p => !p)} tabIndex={-1}>
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {showPassword ? <EyeOff size={18} color={focusedField === 'password' ? 'var(--royal-maroon, #4F5D2F)' : 'currentColor'} /> : <Eye size={18} color={focusedField === 'password' ? 'var(--royal-maroon, #4F5D2F)' : 'currentColor'} />}
                     </button>
                   </div>
                   <PasswordStrength value={form.password} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Confirm Password</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark, #111827)' }}>Confirm Password</label>
                   <div style={{ position: 'relative' }}>
                     <input
                       id="confirmPassword"
@@ -503,7 +488,7 @@ export default function VendorRegisterPage() {
                       onBlur={() => setFocusedField(null)}
                     />
                     <button type="button" className="reg-eye-btn" onClick={() => setShowConfirm(p => !p)} tabIndex={-1}>
-                      {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {showConfirm ? <EyeOff size={18} color={focusedField === 'confirmPassword' ? 'var(--royal-maroon, #4F5D2F)' : 'currentColor'} /> : <Eye size={18} color={focusedField === 'confirmPassword' ? 'var(--royal-maroon, #4F5D2F)' : 'currentColor'} />}
                     </button>
                   </div>
                   {form.confirmPassword && form.confirmPassword !== form.password && (
@@ -520,38 +505,18 @@ export default function VendorRegisterPage() {
             {step === 2 && (
               <div className="reg-step-panel" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Store Name</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark, #111827)' }}>Store Name</label>
                   <input id="storeName" type="text" placeholder="Rajesh General Store" value={form.storeName} onChange={set('storeName')} required className="reg-input-field" onFocus={() => setFocusedField('storeName')} onBlur={() => setFocusedField(null)} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Business Type</label>
-                  <div style={{ position: 'relative' }}>
-                    <select
-                      id="businessType"
-                      value={form.businessType}
-                      onChange={(e) => setForm(prev => ({ ...prev, businessType: e.target.value }))}
-                      required
-                      className="reg-select-field"
-                    >
-                      <option value="">Select a category…</option>
-                      {BUSINESS_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
-                    <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--royal-text-gray)', pointerEvents: 'none', display: 'flex' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="m6 9 6 6 6-6"/>
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>GST Number <span style={{ color: 'var(--royal-text-gray)', fontWeight: 400 }}>(Optional)</span></label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark, #111827)' }}>GST Number <span style={{ color: 'var(--royal-text-gray, #6b7280)', fontWeight: 400 }}>(Optional)</span></label>
                   <input id="gstNumber" type="text" placeholder="22AAAAA0000A1Z5" value={form.gstNumber} onChange={set('gstNumber')} className="reg-input-field" onFocus={() => setFocusedField('gstNumber')} onBlur={() => setFocusedField(null)} />
                 </div>
                 <div style={{
                   background: 'rgba(212, 155, 53, 0.08)',
                   border: '1px solid rgba(212, 155, 53, 0.3)',
                   borderRadius: '12px', padding: '14px 16px',
-                  fontSize: '13px', color: 'var(--royal-text-gray)', lineHeight: 1.6,
+                  fontSize: '13px', color: 'var(--royal-text-gray, #6b7280)', lineHeight: 1.6,
                 }}>
                   💡 <strong>Tip:</strong> Providing your GST number helps with faster payouts and builds customer trust.
                 </div>
@@ -562,28 +527,28 @@ export default function VendorRegisterPage() {
             {step === 3 && (
               <div className="reg-step-panel" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Street Address</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark, #111827)' }}>Street Address</label>
                   <input id="address" type="text" placeholder="123 Market Street, Near Bus Stand" value={form.address} onChange={set('address')} required className="reg-input-field" onFocus={() => setFocusedField('address')} onBlur={() => setFocusedField(null)} />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>City</label>
+                    <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark, #111827)' }}>City</label>
                     <input id="city" type="text" placeholder="Jaipur" value={form.city} onChange={set('city')} required className="reg-input-field" onFocus={() => setFocusedField('city')} onBlur={() => setFocusedField(null)} />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>State</label>
+                    <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark, #111827)' }}>State</label>
                     <input id="state" type="text" placeholder="Rajasthan" value={form.state} onChange={set('state')} required className="reg-input-field" onFocus={() => setFocusedField('state')} onBlur={() => setFocusedField(null)} />
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark)' }}>Pincode</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-dark, #111827)' }}>Pincode</label>
                   <input id="pincode" type="text" placeholder="302001" value={form.pincode} onChange={set('pincode')} required maxLength={6} className="reg-input-field" onFocus={() => setFocusedField('pincode')} onBlur={() => setFocusedField(null)} />
                 </div>
                 <div style={{
-                  background: 'rgba(92, 18, 23, 0.05)',
-                  border: '1px solid rgba(92, 18, 23, 0.15)',
+                  background: 'rgba(79, 93, 47, 0.05)',
+                  border: '1px solid rgba(79, 93, 47, 0.15)',
                   borderRadius: '12px', padding: '14px 16px',
-                  fontSize: '13px', color: 'var(--royal-text-gray)', lineHeight: 1.6,
+                  fontSize: '13px', color: 'var(--royal-text-gray, #6b7280)', lineHeight: 1.6,
                 }}>
                   🔒 Your address is used only for delivery coordination and won&apos;t be shared publicly.
                 </div>
@@ -613,35 +578,38 @@ export default function VendorRegisterPage() {
 
             {/* Divider */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '24px 0' }}>
-              <div style={{ flex: 1, height: '1px', background: 'var(--royal-border)' }} />
-              <span style={{ fontSize: '13px', color: 'var(--royal-text-gray)', whiteSpace: 'nowrap' }}>Already a vendor?</span>
-              <div style={{ flex: 1, height: '1px', background: 'var(--royal-border)' }} />
+              <div style={{ flex: 1, height: '1px', background: 'var(--royal-border, #e5e7eb)' }} />
+              <span style={{ fontSize: '13px', color: 'var(--royal-text-gray, #6b7280)', whiteSpace: 'nowrap' }}>Already a vendor?</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--royal-border, #e5e7eb)' }} />
             </div>
 
             <Link
               href="/login"
               style={{
                 display: 'block', padding: '14px',
-                background: 'var(--royal-cream)',
-                border: '1.5px solid var(--royal-border)',
+                background: 'var(--royal-cream, #fefcfb)',
+                border: '1.5px solid var(--royal-border, #e5e7eb)',
                 borderRadius: '12px',
                 fontSize: '15px', fontWeight: 600,
-                color: 'var(--royal-maroon)',
+                color: 'var(--royal-maroon, #4F5D2F)',
                 textAlign: 'center', textDecoration: 'none',
                 transition: 'all 0.2s ease',
               }}
+              onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--royal-maroon, #4F5D2F)'; }}
+              onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--royal-border, #e5e7eb)'; }}
             >
               Sign In Instead
             </Link>
 
-            <p style={{ textAlign: 'center', fontSize: '12px', color: 'var(--royal-text-gray)', marginTop: '20px', marginBottom: 0 }}>
+            <p style={{ textAlign: 'center', fontSize: '12px', color: 'var(--royal-text-gray, #6b7280)', marginTop: '20px', marginBottom: 0 }}>
               By registering, you agree to SwadDesh&apos;s{' '}
-              <a href="#" style={{ color: 'var(--royal-maroon)', textDecoration: 'none', fontWeight: 600 }}>Terms of Service</a>
+              <a href="#" style={{ color: 'var(--royal-maroon, #4F5D2F)', textDecoration: 'none', fontWeight: 600 }}>Terms of Service</a>
               {' '}and{' '}
-              <a href="#" style={{ color: 'var(--royal-maroon)', textDecoration: 'none', fontWeight: 600 }}>Privacy Policy</a>.
+              <a href="#" style={{ color: 'var(--royal-maroon, #4F5D2F)', textDecoration: 'none', fontWeight: 600 }}>Privacy Policy</a>.
             </p>
           </div>
         </div>
+      </div>
       </div>
     </>
   );

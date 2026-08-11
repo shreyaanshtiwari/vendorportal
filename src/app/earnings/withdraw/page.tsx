@@ -64,14 +64,14 @@ export default function WithdrawPage() {
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '80px' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        
+
         {/* Withdraw Balance */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <h4 style={{ margin: '0 0 4px', fontSize: '14px', fontWeight: 700, color: 'var(--royal-text-dark)' }}>Withdraw Balance</h4>
-          <div style={{ 
-            padding: '20px', 
-            background: 'white', 
-            borderRadius: '12px', 
+          <div style={{
+            padding: '20px',
+            background: 'white',
+            borderRadius: '12px',
             border: '1px solid var(--royal-border)',
             boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
           }}>
@@ -85,10 +85,10 @@ export default function WithdrawPage() {
         {/* Withdraw to */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <h4 style={{ margin: '0 0 4px', fontSize: '14px', fontWeight: 700, color: 'var(--royal-text-dark)' }}>Withdraw to</h4>
-          <div style={{ 
-            padding: '16px 20px', 
-            background: 'white', 
-            borderRadius: '12px', 
+          <div style={{
+            padding: '16px 20px',
+            background: 'white',
+            borderRadius: '12px',
             border: '1px solid var(--royal-border)',
             boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
             display: 'flex',
@@ -109,9 +109,9 @@ export default function WithdrawPage() {
           <h4 style={{ margin: '0 0 4px', fontSize: '14px', fontWeight: 700, color: 'var(--royal-text-dark)' }}>Enter Amount</h4>
           <div style={{ position: 'relative' }}>
             <span style={{ position: 'absolute', left: '16px', top: '14px', color: 'var(--royal-text-gray)', fontSize: '16px', fontWeight: 500 }}>₹</span>
-            <input 
-              type="number" 
-              placeholder="Enter amount" 
+            <input
+              type="number"
+              placeholder="Enter amount"
               value={withdrawAmount}
               onChange={(e) => setWithdrawAmount(e.target.value)}
               max={availableBalance}
@@ -127,17 +127,17 @@ export default function WithdrawPage() {
                 boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
               }}
             />
-            <button 
+            <button
               onClick={handleMaxClick}
-              style={{ 
-                position: 'absolute', 
-                right: '16px', 
-                top: '14px', 
-                background: 'none', 
-                border: 'none', 
-                color: 'var(--royal-maroon)', 
-                fontWeight: 600, 
-                fontSize: '14px', 
+              style={{
+                position: 'absolute',
+                right: '16px',
+                top: '14px',
+                background: 'none',
+                border: 'none',
+                color: 'var(--royal-maroon)',
+                fontWeight: 600,
+                fontSize: '14px',
                 cursor: 'pointer',
                 padding: 0
               }}>
@@ -149,16 +149,16 @@ export default function WithdrawPage() {
 
         {/* Withdraw Now Button */}
         <div style={{ marginTop: '8px' }}>
-          <button 
+          <button
             disabled={!withdrawAmount || Number(withdrawAmount) < 500 || Number(withdrawAmount) > availableBalance}
-            style={{ 
-              width: '100%', 
-              padding: '16px', 
-              background: (!withdrawAmount || Number(withdrawAmount) < 500 || Number(withdrawAmount) > availableBalance) ? '#ccc' : 'var(--royal-maroon)', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '12px', 
-              fontSize: '15px', 
+            style={{
+              width: '100%',
+              padding: '16px',
+              background: (!withdrawAmount || Number(withdrawAmount) < 500 || Number(withdrawAmount) > availableBalance) ? '#ccc' : 'var(--royal-maroon)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '15px',
               fontWeight: 600,
               cursor: (!withdrawAmount || Number(withdrawAmount) < 500 || Number(withdrawAmount) > availableBalance) ? 'not-allowed' : 'pointer',
               boxShadow: '0 4px 15px rgba(74, 4, 4, 0.2)'
@@ -186,13 +186,13 @@ export default function WithdrawPage() {
                     <span style={{ fontWeight: 600, fontSize: '15px', color: 'var(--royal-text-dark)' }}>{item.amount}</span>
                     <p style={{ margin: 0, fontSize: '12px', color: 'var(--royal-text-gray)' }}>{item.date}</p>
                   </div>
-                  <span style={{ 
-                    fontSize: '11px', 
+                  <span style={{
+                    fontSize: '11px',
                     fontWeight: 600,
-                    color: item.status === 'Completed' || item.status === 'Success' ? '#28a745' : item.status === 'Pending' ? '#d39e00' : '#dc3545', 
-                    background: item.status === 'Completed' || item.status === 'Success' ? '#e6f4ea' : item.status === 'Pending' ? '#fff3cd' : '#f8d7da', 
-                    padding: '4px 8px', 
-                    borderRadius: '6px' 
+                    color: item.status === 'Completed' || item.status === 'Success' ? '#28a745' : item.status === 'Pending' ? '#d39e00' : '#dc3545',
+                    background: item.status === 'Completed' || item.status === 'Success' ? '#e6f4ea' : item.status === 'Pending' ? '#fff3cd' : '#f8d7da',
+                    padding: '4px 8px',
+                    borderRadius: '6px'
                   }}>
                     {item.status}
                   </span>

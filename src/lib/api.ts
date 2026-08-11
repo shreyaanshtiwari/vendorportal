@@ -23,7 +23,8 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(`API request failed [${url}]: ${response.status} ${response.statusText}`);
+    const errorMsg = errorData.error || errorData.message || `Request failed (${response.status})`;
+    throw new Error(errorMsg);
   }
 
   // Handle No Content responses

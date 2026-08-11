@@ -27,30 +27,30 @@ export default function OrdersPage() {
 
     loadOrders();
   }, []);
-  
-  const filteredOrders = activeTab === 'All' 
-    ? orders 
+
+  const filteredOrders = activeTab === 'All'
+    ? orders
     : orders.filter(o => o.status === activeTab);
 
   return (
     <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', paddingBottom: '40px' }}>
-      
+
       {/* Page Title */}
       <div className="desktop-only" style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--royal-text-dark)', margin: 0 }}>Orders</h1>
         <p style={{ fontSize: '14px', color: 'var(--royal-text-gray)', margin: '4px 0 0' }}>Manage and track your customer orders</p>
       </div>
-      
+
       {/* Category Tabs */}
       <div className="hide-scrollbar" style={{ display: 'flex', overflowX: 'auto', paddingBottom: '4px', margin: '0 -16px 16px', padding: '0 16px', gap: '8px' }}>
         {['All', 'Pending', 'Confirmed'].map(tab => (
-          <button 
+          <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            style={{ 
-              padding: '8px 16px', 
-              background: activeTab === tab ? 'var(--royal-maroon)' : 'white', 
-              border: activeTab === tab ? 'none' : '1px solid var(--royal-border)', 
+            style={{
+              padding: '8px 16px',
+              background: activeTab === tab ? 'var(--royal-maroon)' : 'white',
+              border: activeTab === tab ? 'none' : '1px solid var(--royal-border)',
               borderRadius: '20px',
               color: activeTab === tab ? 'white' : 'var(--royal-text-gray)',
               fontWeight: activeTab === tab ? 600 : 500,
@@ -64,32 +64,32 @@ export default function OrdersPage() {
           </button>
         ))}
       </div>
-      
+
       {/* Search Toolbar */}
       <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '20px' }}>
         <div style={{ flex: 1, position: 'relative' }}>
           <Search size={18} color="var(--royal-text-gray)" style={{ position: 'absolute', left: '14px', top: '12px' }} />
-          <input 
-            type="text" 
-            placeholder="Search orders..." 
-            style={{ 
-              width: '100%', 
-              padding: '12px 16px 12px 42px', 
-              borderRadius: '12px', 
-              border: 'none', 
+          <input
+            type="text"
+            placeholder="Search orders..."
+            style={{
+              width: '100%',
+              padding: '12px 16px 12px 42px',
+              borderRadius: '12px',
+              border: 'none',
               outline: 'none',
               background: 'white',
               boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
             }}
           />
         </div>
-        <button style={{ 
-          padding: '12px', 
-          background: 'white', 
-          border: 'none', 
-          borderRadius: '12px', 
-          display: 'flex', 
-          alignItems: 'center', 
+        <button style={{
+          padding: '12px',
+          background: 'white',
+          border: 'none',
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
           boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
@@ -110,7 +110,7 @@ export default function OrdersPage() {
                 </div>
                 <Skeleton width="80px" height="24px" borderRadius="20px" />
               </div>
-              
+
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '12px 0', borderTop: '1px dashed var(--royal-border)', borderBottom: '1px dashed var(--royal-border)' }}>
                 <div className="order-customer">
                   <Skeleton width="120px" height="16px" style={{ marginBottom: '6px' }} />
@@ -129,13 +129,13 @@ export default function OrdersPage() {
           ))}
         </div>
       )}
-      
+
       {error && !isLoading && (
         <div style={{ padding: '20px', background: '#fee2e2', color: '#b91c1c', borderRadius: '12px', marginBottom: '16px' }}>
           {error}
         </div>
       )}
-      
+
       {/* Order List */}
       {!isLoading && !error && (
         <div className="orders-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -152,7 +152,7 @@ export default function OrdersPage() {
                   </span>
                 </div>
               </div>
-              
+
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '12px 0', borderTop: '1px dashed var(--royal-border)', borderBottom: '1px dashed var(--royal-border)' }}>
                 <div className="order-customer">
                   <h5 style={{ fontSize: '14px', margin: '0 0 4px' }}>{order.customer}</h5>
@@ -178,7 +178,8 @@ export default function OrdersPage() {
         </div>
       )}
 
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes spin { 100% { transform: rotate(360deg); } }
       `}} />
     </div>
