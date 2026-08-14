@@ -60,6 +60,9 @@ const VendorLayout: React.FC<VendorLayoutProps> = ({ children }) => {
         if (pathname === '/products/add') {
           return 'Add Product';
         }
+        if (pathname === '/profile/edit') {
+          return 'Edit Profile';
+        }
         if (pathname === '/earnings/withdraw') {
           return 'Payouts';
         }
@@ -226,7 +229,7 @@ const VendorLayout: React.FC<VendorLayoutProps> = ({ children }) => {
             <Star size={20} />
             Reviews
           </Link>
-          <Link href="/profile" className={`nav-item ${pathname === '/profile' ? 'active' : ''}`}>
+          <Link href="/profile" className={`nav-item ${pathname?.startsWith('/profile') ? 'active' : ''}`}>
             <Store size={20} />
             Store Profile
           </Link>

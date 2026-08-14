@@ -2,11 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Pencil, User, Phone, Mail, MapPin, Briefcase, ShieldCheck, Clock, Camera, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Pencil, User, Phone, Mail, MapPin, Briefcase, ShieldCheck, Clock, Camera } from 'lucide-react';
 import { fetchApi } from '../../lib/api';
 import '../../styles/dashboard.css';
 
 import { Skeleton } from '../../components/ui/Skeleton';
+import {
+  unwrapProfile,
+  getShopName,
+  getContactPersonName,
+  mergeVendorProfile,
+  loadStoredVendorProfile,
+} from '../../lib/profile';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<any>(null);
@@ -17,7 +25,7 @@ export default function ProfilePage() {
     const loadProfile = async () => {
       try {
         const data = await fetchApi('/vendor/profile');
-        setProfile(data);
+        setProfile(mergeVendorProfile(unwrapProfile(data), loadStoredVendorProfile()));
       } catch (err: any) {
         setError(err.message || 'Failed to load profile');
       } finally {
@@ -155,7 +163,7 @@ export default function ProfilePage() {
           </div>
 
           <div style={{ paddingBottom: '12px' }}>
-            <h1 className="profile-title" style={{ margin: '0 0 4px', fontWeight: 800, color: 'var(--royal-text-dark)' }}>{profile?.shopName || 'Store'}</h1>
+            <h1 className="profile-title" style={{ margin: '0 0 4px', fontWeight: 800, color: 'var(--royal-text-dark)' }}>{getShopName(profile) || 'Store'}</h1>
             <div className="profile-stats">
               <span style={{ fontSize: '14px', color: 'var(--royal-text-gray)', fontWeight: 500 }}>Vendor ID: <strong style={{ color: 'var(--royal-text-dark)' }}>VOR12345</strong></span>
               <span style={{ fontSize: '14px', color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', background: '#dcfce7', padding: '2px 8px', borderRadius: '12px' }}>
@@ -166,7 +174,7 @@ export default function ProfilePage() {
         </div>
 
         <div style={{ paddingBottom: '12px' }}>
-          <button style={{ 
+          <Link href="/profile/edit" style={{ 
             background: 'var(--royal-maroon)', 
             color: 'white', 
             border: 'none', 
@@ -178,10 +186,11 @@ export default function ProfilePage() {
             alignItems: 'center',
             gap: '8px',
             cursor: 'pointer',
+            textDecoration: 'none',
             boxShadow: '0 4px 15px rgba(139, 29, 65, 0.2)'
           }}>
             <Pencil size={16} /> Edit Profile
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -200,7 +209,7 @@ export default function ProfilePage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-gray)' }}>Store Name</label>
               <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.02)', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--royal-border)' }}>
-                <span style={{ flex: 1, fontSize: '15px', color: 'var(--royal-text-dark)', fontWeight: 500 }}>{profile?.shopName || '-'}</span>
+                <span style={{ flex: 1, fontSize: '15px', color: 'var(--royal-text-dark)', fontWeight: 500 }}>{getShopName(profile) || '-'}</span>
               </div>
             </div>
 
@@ -208,7 +217,7 @@ export default function ProfilePage() {
               <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-gray)' }}>Contact Person</label>
               <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.02)', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--royal-border)' }}>
                 <User size={18} color="var(--royal-text-gray)" style={{ marginRight: '12px' }} />
-                <span style={{ flex: 1, fontSize: '15px', color: 'var(--royal-text-dark)', fontWeight: 500 }}>{profile?.ownerName || '-'}</span>
+                <span style={{ flex: 1, fontSize: '15px', color: 'var(--royal-text-dark)', fontWeight: 500 }}>{getContactPersonName(profile) || '-'}</span>
               </div>
             </div>
 
@@ -262,7 +271,6 @@ export default function ProfilePage() {
                 <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-gray)' }}>FSSAI License</label>
                 <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.02)', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--royal-border)' }}>
                   <ShieldCheck size={18} color="var(--royal-text-gray)" style={{ marginRight: '8px' }} />
-                  <span style={{ flex: 1, fontSize: '14px', color: 'var(--royal-text-dark)', fontWeight: 500 }}>12214026000123</span>
                 </div>
               </div>
             </div>
@@ -271,7 +279,7 @@ export default function ProfilePage() {
               <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-gray)' }}>Operating Hours</label>
               <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.02)', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--royal-border)' }}>
                 <Clock size={18} color="var(--royal-text-gray)" style={{ marginRight: '12px' }} />
-                <span style={{ flex: 1, fontSize: '15px', color: 'var(--royal-text-dark)', fontWeight: 500 }}>09:00 AM - 09:00 PM (Mon - Sat)</span>
+                <span style={{ flex: 1, fontSize: '15px', color: 'var(--royal-text-dark)', fontWeight: 500 }}>{profile?.operatingHours || '09:00 AM - 09:00 PM (Mon - Sat)'}</span>
               </div>
             </div>
 
