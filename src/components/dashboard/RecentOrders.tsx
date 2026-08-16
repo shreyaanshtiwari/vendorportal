@@ -72,7 +72,7 @@ const RecentOrders = () => {
                   </div>
                   <div className="order-amount">
                     <h5>{order.amount}</h5>
-                    <p>{order.items} items</p>
+                    <p>{Array.isArray(order.items) ? order.items.length : order.items} items</p>
                   </div>
                   <div className="status-badge-container">
                     <span className={`status-badge status-${(order.status || '').toLowerCase()}`}>
