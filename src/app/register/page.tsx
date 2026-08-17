@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { fetchApi } from '../../lib/api';
 import {
   Eye, EyeOff, ArrowRight, ArrowLeft, Loader2,
@@ -310,20 +311,42 @@ export default function VendorRegisterPage() {
             borderRadius: '50%', filter: 'blur(50px)',
           }} />
 
-          {/* Logo */}
-          <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', marginBottom: '48px' }}>
+          {/* Logo Section */}
+          <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', marginBottom: '36px' }}>
             <div style={{
-              width: '72px', height: '72px',
-              background: 'var(--royal-gold, #C9A14A)',
-              borderRadius: '20px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 20px',
-              boxShadow: '0 8px 32px rgba(212, 155, 53, 0.4)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '14px',
             }}>
-              <Store size={36} color="white" />
+              <Image
+                src="/logo.png"
+                alt="SwadDesh"
+                width={260}
+                height={80}
+                style={{ width: '250px', height: 'auto', maxHeight: '75px', objectFit: 'contain' }}
+                priority
+              />
             </div>
-            <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 800, margin: '0 0 8px' }}>SwadDesh</h1>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0, fontWeight: 500 }}>Vendor Partner Portal</p>
+            <div>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'rgba(255, 255, 255, 0.12)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                borderRadius: '100px',
+                padding: '4px 14px',
+                color: '#fefcfb',
+                fontSize: '12px',
+                fontWeight: 600,
+                letterSpacing: '0.8px',
+                textTransform: 'uppercase',
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--royal-gold, #C9A14A)' }} />
+                Vendor Partner Portal
+              </span>
+            </div>
           </div>
 
           {/* Step indicators */}

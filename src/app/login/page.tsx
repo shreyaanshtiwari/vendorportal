@@ -3,8 +3,19 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { fetchApi } from '../../lib/api';
-import { Store, ArrowRight, Lock, Mail, Loader2 } from 'lucide-react';
+import { 
+  Store, 
+  ArrowRight, 
+  Lock, 
+  Mail, 
+  Loader2, 
+  PackageCheck, 
+  Truck, 
+  Wallet, 
+  ShieldCheck 
+} from 'lucide-react';
 
 export default function VendorLoginPage() {
   const router = useRouter();
@@ -135,39 +146,170 @@ export default function VendorLoginPage() {
             borderRadius: '50%', filter: 'blur(50px)',
           }} />
 
-          {/* Logo */}
-          <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', marginBottom: '48px' }}>
+          {/* Logo Section */}
+          <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', marginBottom: '28px' }}>
             <div style={{
-              width: '72px', height: '72px',
-              background: 'var(--royal-gold, #C9A14A)',
-              borderRadius: '20px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 20px',
-              boxShadow: '0 8px 32px rgba(212, 155, 53, 0.4)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '14px',
             }}>
-              <Store size={36} color="white" />
+              <Image
+                src="/logo.png"
+                alt="SwadDesh"
+                width={260}
+                height={80}
+                style={{ width: '250px', height: 'auto', maxHeight: '75px', objectFit: 'contain' }}
+                priority
+              />
             </div>
-            <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 800, margin: '0 0 8px' }}>SwadDesh</h1>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0, fontWeight: 500 }}>Vendor Partner Portal</p>
+            <div>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'rgba(255, 255, 255, 0.12)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                borderRadius: '100px',
+                padding: '4px 14px',
+                color: '#fefcfb',
+                fontSize: '12px',
+                fontWeight: 600,
+                letterSpacing: '0.8px',
+                textTransform: 'uppercase',
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--royal-gold, #C9A14A)' }} />
+                Vendor Partner Portal
+              </span>
+            </div>
           </div>
 
-          <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: '340px' }}>
-            <h3 style={{ color: 'white', fontSize: '24px', fontWeight: 700, marginBottom: '16px', lineHeight: 1.3 }}>
-              Manage your store, track orders, and grow your business.
-            </h3>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '15px', lineHeight: 1.6 }}>
-              Join thousands of vendors across India who are bringing authentic tastes to millions of customers.
+          {/* Headline & Value Proposition */}
+          <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: '520px', width: '100%', marginBottom: '26px' }}>
+            <h2 style={{ 
+              color: 'white', 
+              fontSize: '20px', 
+              fontWeight: 800, 
+              margin: '0 0 8px', 
+              lineHeight: 1.3,
+              whiteSpace: 'nowrap'
+            }}>
+              Apne Shehar Ka Asli Swad, Desh Ke Har Ghar Tak
+            </h2>
+            <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: '13.5px', lineHeight: 1.5, margin: '0 auto', maxWidth: '440px' }}>
+              Manage products, streamline orders & dispatches, and get transparent bank settlements — all in one unified seller console.
             </p>
           </div>
 
+          {/* Operational Feature Cards */}
           <div style={{
-            position: 'absolute', bottom: '32px',
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '100px', padding: '8px 20px',
-            color: 'rgba(255,255,255,0.5)', fontSize: '13px',
+            position: 'relative',
+            zIndex: 1,
+            width: '100%',
+            maxWidth: '420px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            marginBottom: '26px',
           }}>
-            Trusted by 2,000+ vendors across India
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '11px 14px',
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '12px',
+              backdropFilter: 'blur(6px)',
+            }}>
+              <div style={{
+                width: '34px', height: '34px',
+                borderRadius: '9px',
+                background: 'rgba(201, 161, 74, 0.22)',
+                border: '1px solid rgba(201, 161, 74, 0.35)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+                color: '#EBB85A',
+              }}>
+                <PackageCheck size={17} />
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ color: 'white', fontSize: '13px', fontWeight: 700 }}>Real-Time Order & Dispatch Management</div>
+                <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '11.5px', marginTop: '1px' }}>Instant order sync, shipping labels & express courier pickups</div>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '11px 14px',
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '12px',
+              backdropFilter: 'blur(6px)',
+            }}>
+              <div style={{
+                width: '34px', height: '34px',
+                borderRadius: '9px',
+                background: 'rgba(201, 161, 74, 0.22)',
+                border: '1px solid rgba(201, 161, 74, 0.35)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+                color: '#EBB85A',
+              }}>
+                <Wallet size={17} />
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ color: 'white', fontSize: '13px', fontWeight: 700 }}>Transparent Bank Settlements</div>
+                <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '11.5px', marginTop: '1px' }}>Automated GST invoices, zero hidden cuts & direct bank payouts</div>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '11px 14px',
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '12px',
+              backdropFilter: 'blur(6px)',
+            }}>
+              <div style={{
+                width: '34px', height: '34px',
+                borderRadius: '9px',
+                background: 'rgba(201, 161, 74, 0.22)',
+                border: '1px solid rgba(201, 161, 74, 0.35)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+                color: '#EBB85A',
+              }}>
+                <Truck size={17} />
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ color: 'white', fontSize: '13px', fontWeight: 700 }}>Pan-India Fast Logistics Network</div>
+                <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '11.5px', marginTop: '1px' }}>Safe, monitored express delivery for fresh regional sweets & snacks</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Trust Badge */}
+          <div style={{
+            position: 'relative',
+            zIndex: 1,
+            background: 'rgba(255,255,255,0.07)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: '100px',
+            padding: '7px 18px',
+            color: 'rgba(255,255,255,0.75)',
+            fontSize: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            <ShieldCheck size={15} color="#EBB85A" />
+            <span>FSSAI Compliant & Verified Partner Network</span>
           </div>
         </div>
 
