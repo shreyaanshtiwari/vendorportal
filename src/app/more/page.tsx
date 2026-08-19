@@ -3,8 +3,16 @@
 import React from 'react';
 import { User, HelpCircle, History, LogOut, ChevronRight, Settings } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function MoreOptionsPage() {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem('vendor_token');
+    localStorage.removeItem('vendor_profile');
+    router.push('/login');
+  };
   
   const menuOptions = [
     {
@@ -61,7 +69,42 @@ export default function MoreOptionsPage() {
         
         {/* Action List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {menuOptions.map((option) => (
+          {menuOptions.map((option) => option.id === 4 ? (
+            <div key={option.id} onClick={handleLogout} style={{
+              background: 'white',
+              border: '1px solid var(--royal-border)',
+              borderRadius: '16px',
+              padding: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              cursor: 'pointer',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
+              transition: 'all 0.2s ease'
+            }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '12px',
+                background: option.iconBg,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                {option.icon}
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#ef4444' }}>
+                  {option.title}
+                </h4>
+                <p style={{ margin: 0, fontSize: '13px', color: 'var(--royal-text-gray)' }}>
+                  {option.desc}
+                </p>
+              </div>
+              <ChevronRight size={20} color="var(--royal-text-gray)" opacity={0.6} />
+            </div>
+          ) : (
             <Link href={option.href} key={option.id} style={{ textDecoration: 'none' }}>
               <div style={{
                 background: 'white',

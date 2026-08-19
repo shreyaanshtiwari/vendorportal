@@ -16,8 +16,7 @@ export default function ReviewsPage() {
   useEffect(() => {
     const loadReviews = async () => {
       try {
-        // Added temporary 1.5s delay so you can see the beautiful skeleton loader!
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Instant real-time reviews fetch
         
         const [reviewsData, statsData] = await Promise.all([
           fetchApi('/vendor/reviews'),

@@ -131,7 +131,7 @@ export default function ProductsPage() {
                 
                 {/* Product Image */}
                 <div style={{ width: '80px', height: '80px', borderRadius: '12px', overflow: 'hidden', flexShrink: 0, position: 'relative', background: 'var(--royal-cream)' }}>
-                  {product.image_url && <Image src={product.image_url} alt={product.name} fill style={{ objectFit: 'cover' }} />}
+                  {(product.image || product.image_url) ? <img src={product.image || product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : null}
                 </div>
                 
                 {/* Product Details (Middle) */}
@@ -149,7 +149,7 @@ export default function ProductsPage() {
                   </button>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-                    <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--royal-text-dark)' }}>{product.price}</span>
+                    <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--royal-text-dark)' }}>₹{product.price}</span>
                     <span style={{ 
                       fontSize: '11px', 
                       fontWeight: 600,

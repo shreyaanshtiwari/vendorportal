@@ -105,7 +105,7 @@ const VendorLayout: React.FC<VendorLayoutProps> = ({ children }) => {
     }
 
     // Validate token with backend
-    fetch('http://localhost:8080/api/vendor/validate-token', {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/vendor/validate-token`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => {
