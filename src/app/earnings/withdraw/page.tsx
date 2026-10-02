@@ -32,9 +32,14 @@ export default function WithdrawPage() {
     loadData();
   }, []);
 
+  const availableBalance =
+    earnings?.available_balance ??
+    earnings?.availableBalance ??
+    0;
+
   const handleMaxClick = () => {
-    if (earnings?.availableBalance) {
-      setWithdrawAmount(earnings.availableBalance.toString());
+    if (availableBalance) {
+      setWithdrawAmount(availableBalance.toString());
     }
   };
 
@@ -59,7 +64,6 @@ export default function WithdrawPage() {
     );
   }
 
-  const availableBalance = earnings?.availableBalance || 0;
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '80px' }}>

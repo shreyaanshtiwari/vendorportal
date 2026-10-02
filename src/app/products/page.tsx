@@ -17,8 +17,10 @@ export default function ProductsPage() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const data = await fetchApi('/vendor/products');
-        setProducts(data || []);
+        // Try authoritative catalog products endpoint with fallback to general vendor products
+        const data = await fetchApi('/vendor/catalog/products').catch(() => fetchApi('/vendor/products'));
+        const list = Array.isArray(data) ? data : (data?.products || []);
+        setProducts(list);
       } catch (err: any) {
         setError(err.message || 'Failed to load products. Backend API is unreachable.');
       } finally {

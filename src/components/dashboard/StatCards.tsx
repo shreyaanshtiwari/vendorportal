@@ -111,7 +111,7 @@ const StatCards = () => {
           </div>
           <div>
             <h4 className="stat-title">Available Balance</h4>
-            <h2 className="stat-value">₹{stats?.availableBalance?.toLocaleString() || 0}</h2>
+            <h2 className="stat-value">₹{(stats?.available_balance ?? stats?.availableBalance ?? 0).toLocaleString()}</h2>
             <div className="stat-action">
               Payouts & settlements
             </div>

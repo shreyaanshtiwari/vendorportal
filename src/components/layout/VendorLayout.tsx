@@ -1,4 +1,6 @@
 "use client";
+import { supabase } from '../../lib/supabase';
+import { fetchApi } from '../../lib/api';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -87,16 +89,7 @@ const VendorLayout: React.FC<VendorLayoutProps> = ({ children }) => {
 
   React.useEffect(() => {
     const token = localStorage.getItem('vendor_token');
-
-    // No token at all → go to login
-    if (!token) {
-      if (pathname !== '/login' && pathname !== '/register') {
-        router.push('/login');
-      } else {
-        setIsAuthenticated(true);
-      }
-      return;
-    }
+    const vendorId = localStorage.getItem('swaddesh_vendor_id');
 
     // Skip validation on auth pages
     if (pathname === '/login' || pathname === '/register') {
@@ -104,24 +97,85 @@ const VendorLayout: React.FC<VendorLayoutProps> = ({ children }) => {
       return;
     }
 
-    // Validate token with backend
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/vendor/validate-token`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(res => {
-        if (res.ok) {
+    // No token or vendor ID at all → go to login
+    if (!token || !vendorId) {
+      localStorage.removeItem('vendor_token');
+      localStorage.removeItem('swaddesh_vendor_id');
+      localStorage.removeItem('vendor_profile');
+      setIsAuthenticated(false);
+      router.push('/login');
+      return;
+    }
+
+    // Authoritative session & vendor membership verification via Supabase
+    let isMounted = true;
+    const verifyVendorAccess = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!isMounted) return;
+
+        if (!session?.user) {
+          localStorage.removeItem('vendor_token');
+          localStorage.removeItem('swaddesh_vendor_id');
+          localStorage.removeItem('vendor_profile');
+          setIsAuthenticated(false);
+          router.push('/login');
+          return;
+        }
+
+        const { data: members } = await supabase
+          .from('vendor_members')
+          .select('vendor_id, member_role, vendor:vendors(*)')
+          .eq('user_id', session.user.id);
+
+        if (!isMounted) return;
+
+        if (members && members.length > 0) {
+          const vId = members[0].vendor_id;
+          localStorage.setItem('swaddesh_vendor_id', vId);
+          if (members[0].vendor) {
+            localStorage.setItem('vendor_profile', JSON.stringify(members[0].vendor));
+          }
           setIsAuthenticated(true);
         } else {
-          // Token invalid or expired
-          localStorage.removeItem('vendor_token');
-          localStorage.removeItem('vendor_profile');
-          router.push('/login');
+          // Backend profile check fallback
+          const prof = await fetchApi('/vendor/profile', {
+            headers: { Authorization: `Bearer ${session.access_token}` }
+          }).catch(() => null);
+
+          if (!isMounted) return;
+
+          if (prof && (prof.id || prof.vendor_id)) {
+            localStorage.setItem('swaddesh_vendor_id', prof.id || prof.vendor_id);
+            localStorage.setItem('vendor_profile', JSON.stringify(prof));
+            setIsAuthenticated(true);
+          } else {
+            // Not registered as vendor! Sign out and redirect to login
+            await supabase.auth.signOut();
+            localStorage.removeItem('vendor_token');
+            localStorage.removeItem('swaddesh_vendor_id');
+            localStorage.removeItem('vendor_profile');
+            setIsAuthenticated(false);
+            router.push('/login');
+          }
         }
-      })
-      .catch(() => {
-        // Backend unreachable — allow access to avoid blocking on server down
-        setIsAuthenticated(true);
-      });
+      } catch (err) {
+        if (isMounted) {
+          const storedVId = localStorage.getItem('swaddesh_vendor_id');
+          if (storedVId) {
+            setIsAuthenticated(true);
+          } else {
+            router.push('/login');
+          }
+        }
+      }
+    };
+
+    verifyVendorAccess();
+
+    return () => {
+      isMounted = false;
+    };
   }, [pathname, router]);
 
   // Don't render layout elements for auth pages
@@ -251,9 +305,11 @@ const VendorLayout: React.FC<VendorLayoutProps> = ({ children }) => {
             </div>
             
             <button 
-              onClick={() => {
+              onClick={async () => {
+                await supabase.auth.signOut();
                 localStorage.removeItem('vendor_token');
                 localStorage.removeItem('vendor_profile');
+                localStorage.removeItem('swaddesh_vendor_id');
                 router.push('/login');
               }}
               style={{

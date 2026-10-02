@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { fetchApi } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 import { 
   Store, 
   ArrowRight, 
@@ -31,23 +32,105 @@ export default function VendorLoginPage() {
     setError('');
 
     try {
-      // Connect to the REST API on localhost:8080
-      const data = await fetchApi('/vendor/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
+      // 1. Authoritative Supabase Auth Sign In
+      const { data: supaAuth, error: supaErr } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      // Save token (Assuming the backend returns a JWT inside { token: '...' })
-      if (data && data.token) {
-        localStorage.setItem('vendor_token', data.token);
-        // Optionally save vendor data
-        localStorage.setItem('vendor_profile', JSON.stringify(data.vendor || {}));
-        
-        // Redirect to dashboard
+      if (!supaErr && supaAuth?.session?.access_token) {
+        const token = supaAuth.session.access_token;
+        const user = supaAuth.user;
+
+        // Resolve vendor membership from Supabase or backend
+        let resolvedVendorId: string | null = null;
+        let resolvedProfile: any = null;
+
+        try {
+          const { data: members, error: memErr } = await supabase
+            .from('vendor_members')
+            .select('vendor_id, member_role, vendor:vendors(*)')
+            .eq('user_id', user.id);
+
+          if (members && members.length > 0) {
+            resolvedVendorId = members[0].vendor_id;
+            resolvedProfile = members[0].vendor || {};
+          } else {
+            // Fallback: fetch profile from backend
+            const prof = await fetchApi('/vendor/profile', {
+              headers: { Authorization: `Bearer ${token}` }
+            }).catch(() => null);
+            if (prof && (prof.id || prof.vendor_id)) {
+              resolvedVendorId = prof.id || prof.vendor_id;
+              resolvedProfile = prof;
+            }
+          }
+        } catch (checkErr) {
+          console.error('Vendor verification error:', checkErr);
+        }
+
+        // STRICT GATEWAY: User MUST be registered as an artisan / vendor
+        if (!resolvedVendorId) {
+          await supabase.auth.signOut();
+          localStorage.removeItem('vendor_token');
+          localStorage.removeItem('swaddesh_vendor_id');
+          localStorage.removeItem('vendor_profile');
+          setError('This account is not registered as an Artisan / Vendor. Please register your store first.');
+          setIsLoading(false);
+          return;
+        }
+
+        // Check if vendor account is suspended
+        if (resolvedProfile?.status === 'SUSPENDED' || resolvedProfile?.status === 'REJECTED') {
+          await supabase.auth.signOut();
+          localStorage.removeItem('vendor_token');
+          localStorage.removeItem('swaddesh_vendor_id');
+          localStorage.removeItem('vendor_profile');
+          setError(`Your vendor account status is ${resolvedProfile.status}. Access is restricted.`);
+          setIsLoading(false);
+          return;
+        }
+
+        localStorage.setItem('vendor_token', token);
+        localStorage.setItem('swaddesh_vendor_id', resolvedVendorId);
+        if (resolvedProfile) {
+          localStorage.setItem('vendor_profile', JSON.stringify(resolvedProfile));
+        }
+
         router.push('/');
-      } else {
-        throw new Error('Invalid response from server. Missing token.');
+        return;
       }
+
+      // 2. Fallback: attempt backend /vendor/login in case backend direct auth is active
+      try {
+        const data = await fetchApi('/vendor/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (data && (data.token || data.access_token)) {
+          const token = data.token || data.access_token;
+          const vId = data.vendor?.id || data.vendor?.vendor_id || data.vendorId;
+
+          if (!vId) {
+            throw new Error('This account is not registered as an Artisan / Vendor. Please register your store first.');
+          }
+
+          localStorage.setItem('vendor_token', token);
+          localStorage.setItem('swaddesh_vendor_id', vId);
+          if (data.vendor) {
+            localStorage.setItem('vendor_profile', JSON.stringify(data.vendor));
+          }
+          router.push('/');
+          return;
+        }
+      } catch (backendErr: any) {
+        if (supaErr) throw supaErr;
+        throw backendErr;
+      }
+
+      if (supaErr) throw supaErr;
+      throw new Error('Invalid email or password. Please try again.');
     } catch (err: any) {
       let msg = err.message || 'Invalid email or password. Please try again.';
       msg = msg.replace(/^API request failed \[[^\]]+\]:\s*/, '');

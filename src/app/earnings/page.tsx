@@ -32,6 +32,21 @@ export default function EarningsPage() {
     loadData();
   }, []);
 
+  const available =
+    earnings?.available_balance ??
+    earnings?.availableBalance ??
+    0;
+
+  const total =
+    earnings?.total_earnings ??
+    earnings?.totalEarnings ??
+    0;
+
+  const growth =
+    earnings?.growth_percent ??
+    earnings?.growthPercent ??
+    0;
+
   if (isLoading) {
     return (
       <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', paddingBottom: '40px' }}>
@@ -100,7 +115,7 @@ export default function EarningsPage() {
       }}>
         <div>
           <p style={{ margin: '0 0 8px', fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-gray)' }}>Available Balance</p>
-          <h2 style={{ margin: 0, fontSize: '32px', fontWeight: 700, color: 'var(--royal-text-dark)', fontFamily: 'var(--font-jakarta), sans-serif' }}>₹{earnings?.availableBalance?.toLocaleString() || '0'}</h2>
+          <h2 style={{ margin: 0, fontSize: '32px', fontWeight: 700, color: 'var(--royal-text-dark)', fontFamily: 'var(--font-jakarta), sans-serif' }}>₹{available.toLocaleString()}</h2>
         </div>
         <Link href="/earnings/withdraw" style={{ 
           background: 'var(--royal-maroon)', 
@@ -121,7 +136,7 @@ export default function EarningsPage() {
       <div className="royal-card" style={{ marginBottom: '32px', padding: '24px 20px' }}>
         <p style={{ margin: '0 0 8px', fontSize: '13px', fontWeight: 600, color: 'var(--royal-text-gray)' }}>Total Earnings</p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-          <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 700, color: 'var(--royal-text-dark)' }}>₹{earnings?.totalEarnings?.toLocaleString() || '0'}</h2>
+          <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 700, color: 'var(--royal-text-dark)' }}>₹{total.toLocaleString()}</h2>
           <span style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -130,7 +145,7 @@ export default function EarningsPage() {
             fontSize: '13px', 
             fontWeight: 700 
           }}>
-            <ArrowUp size={14} strokeWidth={3} /> {earnings?.growthPercent || 0}%
+            <ArrowUp size={14} strokeWidth={3} /> {growth}%
           </span>
         </div>
         <p style={{ margin: 0, fontSize: '12px', color: 'var(--royal-text-gray)' }}>This Month</p>

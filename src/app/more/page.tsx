@@ -1,5 +1,7 @@
 "use client";
 
+import { supabase } from '../../lib/supabase';
+
 import React from 'react';
 import { User, HelpCircle, History, LogOut, ChevronRight, Settings } from 'lucide-react';
 import Link from 'next/link';
@@ -8,9 +10,13 @@ import { useRouter } from 'next/navigation';
 export default function MoreOptionsPage() {
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch {}
     localStorage.removeItem('vendor_token');
     localStorage.removeItem('vendor_profile');
+    localStorage.removeItem('swaddesh_vendor_id');
     router.push('/login');
   };
   
