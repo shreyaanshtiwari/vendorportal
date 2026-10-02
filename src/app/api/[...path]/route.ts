@@ -7,11 +7,22 @@ async function handleProxy(request: NextRequest) {
     const search = request.nextUrl.search;
     const targetUrl = `${backendUrl.replace(/\/$/, '')}${pathname}${search}`;
 
+    const hopByHopHeaders = new Set([
+        'host',
+        'origin',
+        'referer',
+        'content-length',
+        'connection',
+        'keep-alive',
+        'transfer-encoding',
+        'expect',
+        'accept-encoding',
+    ]);
+
     const headers = new Headers();
     request.headers.forEach((value, key) => {
         const lowerKey = key.toLowerCase();
-        // Omit host, origin, referer from browser to prevent Spring Boot 403 "Invalid CORS request"
-        if (lowerKey !== 'host' && lowerKey !== 'origin' && lowerKey !== 'referer') {
+        if (!hopByHopHeaders.has(lowerKey)) {
             headers.set(key, value);
         }
     });
@@ -22,12 +33,12 @@ async function handleProxy(request: NextRequest) {
     const method = request.method;
     const hasBody = method !== 'GET' && method !== 'HEAD';
 
-    let bodyData: ArrayBuffer | undefined = undefined;
+    let bodyData: Uint8Array | undefined = undefined;
     if (hasBody) {
         try {
             const buf = await request.arrayBuffer();
             if (buf && buf.byteLength > 0) {
-                bodyData = buf;
+                bodyData = new Uint8Array(buf);
             }
         } catch (e) {
             console.warn('[PROXY_WARN] Failed to read request body:', e);
@@ -39,12 +50,18 @@ async function handleProxy(request: NextRequest) {
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
-            const backendResponse = await fetch(targetUrl, {
+            const fetchOptions: any = {
                 method,
                 headers,
-                body: bodyData,
                 redirect: 'manual',
-            });
+                signal: AbortSignal.timeout(45000),
+            };
+            if (bodyData) {
+                fetchOptions.body = bodyData;
+                fetchOptions.duplex = 'half';
+            }
+
+            const backendResponse = await fetch(targetUrl, fetchOptions);
 
             // If Render is cold-starting, it may return 502 or 503 briefly; wait and retry
             if ((backendResponse.status === 502 || backendResponse.status === 503 || backendResponse.status === 504) && attempt < maxRetries) {
