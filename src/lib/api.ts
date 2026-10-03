@@ -15,7 +15,7 @@ const getBaseUrl = (): string => {
 /**
  * Fetch wrapper for connecting to the backend API.
  * Uses relative '/api' in the browser to route through Next.js reverse proxy.
- * Includes a 45s timeout to handle Render backend cold starts gracefully.
+ * Includes cold-start detection and a 45s timeout for Render backend cold starts.
  */
 export async function fetchApi(endpoint: string, options: RequestInit = {}) {
   const baseUrl = getBaseUrl();
@@ -41,6 +41,14 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 45000);
 
+  // If request takes > 3.5s, signal that Render backend might be cold-starting
+  let coldStartTimer: any = null;
+  if (typeof window !== 'undefined') {
+    coldStartTimer = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('server-cold-starting'));
+    }, 3500);
+  }
+
   try {
     const response = await fetch(url, {
       ...options,
@@ -49,8 +57,16 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
     });
 
     clearTimeout(timeoutId);
+    if (coldStartTimer) clearTimeout(coldStartTimer);
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('server-awake'));
+    }
 
     if (!response.ok) {
+      if ((response.status === 502 || response.status === 503 || response.status === 504) && typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('server-cold-starting'));
+      }
       const errorData = await response.json().catch(() => ({}));
       const errorMsg = errorData.error || errorData.message || `Request failed (${response.status})`;
       throw new Error(errorMsg);
@@ -64,9 +80,14 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
     return await response.json();
   } catch (err: any) {
     clearTimeout(timeoutId);
+    if (coldStartTimer) clearTimeout(coldStartTimer);
     if (err.name === 'AbortError') {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('server-cold-starting'));
+      }
       throw new Error('Request timed out after 45s while waiting for server response.');
     }
+    console.error(`[API Error] ${endpoint}:`, err);
     throw err;
   }
 }
