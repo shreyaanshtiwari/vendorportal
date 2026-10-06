@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Search, Filter, MoreVertical, Plus, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { fetchApi } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 import '../../styles/dashboard.css';
 
 import { Skeleton } from '../../components/ui/Skeleton';
@@ -18,8 +19,41 @@ export default function ProductsPage() {
     const loadProducts = async () => {
       try {
         // Try authoritative catalog products endpoint with fallback to general vendor products
-        const data = await fetchApi('/vendor/catalog/products').catch(() => fetchApi('/vendor/products'));
-        const list = Array.isArray(data) ? data : (data?.products || []);
+        let list: any[] = [];
+        try {
+          const data = await fetchApi('/vendor/catalog/products').catch(() => fetchApi('/vendor/products'));
+          list = Array.isArray(data) ? data : (data?.products || []);
+        } catch (backendErr) {
+          console.warn('Backend unavailable, querying Supabase directly:', backendErr);
+        }
+
+        // Resilient fallback to Supabase if list is empty or backend failed
+        if (!list || list.length === 0) {
+          const vId = typeof window !== 'undefined' ? localStorage.getItem('swaddesh_vendor_id') : null;
+          if (vId) {
+            const { data: supaProds } = await supabase
+              .from('products')
+              .select('*, variants:product_variants(*), region:regions(*)')
+              .eq('vendor_id', vId)
+              .order('created_at', { ascending: false });
+
+            if (supaProds && supaProds.length > 0) {
+              list = supaProds.map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                category: p.category_id,
+                region: p.region?.state_name || p.region?.region_title || 'India',
+                price: p.variants?.[0]?.selling_price || p.variants?.[0]?.vendor_price || 0,
+                stock: p.variants?.[0]?.stock_quantity ?? 50,
+                approval_status: p.approval_status || 'PENDING',
+                status: p.is_active ? 'Active' : 'Inactive',
+                active: p.is_active,
+                image: '/placeholder-sweet.png',
+              }));
+            }
+          }
+        }
+
         setProducts(list);
       } catch (err: any) {
         setError(err.message || 'Failed to load products. Backend API is unreachable.');
