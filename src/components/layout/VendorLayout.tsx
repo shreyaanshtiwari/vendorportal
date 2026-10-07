@@ -23,7 +23,8 @@ import {
   ChevronLeft,
   Plus,
   User,
-  Search
+  Search,
+  Boxes
 } from 'lucide-react';
 import '../../styles/layout.css';
 
@@ -54,6 +55,7 @@ const VendorLayout: React.FC<VendorLayoutProps> = ({ children }) => {
           </div>
         );
       case '/products': return 'My Products';
+      case '/inventory': return 'Inventory & Stock';
       case '/orders': return 'All Orders';
       case '/earnings': return 'Earnings';
       case '/more': return 'More and Options';
@@ -265,6 +267,10 @@ const VendorLayout: React.FC<VendorLayoutProps> = ({ children }) => {
           <Link href="/products" className={`nav-item ${pathname === '/products' ? 'active' : ''}`}>
             <Package size={20} />
             My Products
+          </Link>
+          <Link href="/inventory" className={`nav-item ${pathname === '/inventory' ? 'active' : ''}`}>
+            <Boxes size={20} />
+            Inventory & Stock
           </Link>
           <Link href="/orders" className={`nav-item ${pathname === '/orders' ? 'active' : ''}`}>
             <ShoppingCart size={20} />

@@ -3,7 +3,7 @@
 import { supabase } from '../../lib/supabase';
 
 import React from 'react';
-import { User, HelpCircle, History, LogOut, ChevronRight, Settings } from 'lucide-react';
+import { User, HelpCircle, History, LogOut, ChevronRight, Settings, Boxes } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -21,6 +21,14 @@ export default function MoreOptionsPage() {
   };
   
   const menuOptions = [
+    {
+      id: 0,
+      title: 'Inventory & Stock',
+      desc: 'Update product quantities and stock levels',
+      icon: <Boxes size={20} color="#b45309" />,
+      iconBg: '#fef3c7',
+      href: '/inventory'
+    },
     {
       id: 1,
       title: 'Store Profile',

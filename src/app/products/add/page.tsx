@@ -49,7 +49,7 @@ export default function AddProductPage() {
             name: cleanName,
             region: regionInput,
             vendor_price: costPrice,
-            stock: 50,
+            stock: 0,
           }),
         });
         apiSuccess = true;
@@ -139,13 +139,13 @@ export default function AddProductPage() {
             mrp: mrp < sellingPrice ? sellingPrice : mrp,
             selling_price: sellingPrice < costPrice ? costPrice : sellingPrice,
             vendor_price: costPrice > 0 ? costPrice : 100,
-            stock_quantity: 50,
+            stock_quantity: 0,
             is_default: true,
             is_active: true,
           });
       }
 
-      setSuccess('Product added successfully! It is now pending admin approval.');
+      setSuccess('Product listed successfully! It is now pending admin approval.');
       setTimeout(() => router.push('/products'), 2000);
     } catch (err: any) {
       let msg = err.message || 'Failed to add product';
@@ -173,8 +173,8 @@ export default function AddProductPage() {
       
       {/* Page Title */}
       <div className="desktop-only" style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--royal-text-dark)', margin: 0 }}>Add New Product</h1>
-        <p style={{ fontSize: '14px', color: 'var(--royal-text-gray)', margin: '4px 0 0' }}>Enter details to list a new item. It will be sent for admin approval.</p>
+        <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--royal-text-dark)', margin: 0 }}>Add New Product Listing</h1>
+        <p style={{ fontSize: '14px', color: 'var(--royal-text-gray)', margin: '4px 0 0' }}>Enter details to list a new item on the website. Stock quantities can be managed separately in Inventory.</p>
       </div>
 
       {/* Success/Error Messages */}
