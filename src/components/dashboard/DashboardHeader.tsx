@@ -27,7 +27,7 @@ const DashboardHeader = () => {
 
   const shopName = profile?.shopName || profile?.ownerName || 'My Store';
   const displayId = profile?.email || profile?.phone || 'Vendor Partner';
-  const avatarUrl = profile?.avatarUrl || "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=140&q=80";
+  const avatarUrl = profile?.avatarUrl || profile?.logo_url || profile?.logoUrl || profile?.avatar_url || "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=140&q=80";
 
   return (
     <div className="dashboard-header">

@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Pencil, User, Phone, Mail, MapPin, Briefcase, ShieldCheck, Clock, Camera } from 'lucide-react';
+import { Pencil, User, Phone, Mail, MapPin, Briefcase, ShieldCheck, Clock, Camera, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { fetchApi } from '../../lib/api';
 import '../../styles/dashboard.css';
 
@@ -15,11 +15,88 @@ import {
   mergeVendorProfile,
   loadStoredVendorProfile,
 } from '../../lib/profile';
+import { uploadVendorImage } from '../../lib/upload';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (feedback) {
+      const timer = setTimeout(() => setFeedback(null), 4500);
+      return () => clearTimeout(timer);
+    }
+  }, [feedback]);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingAvatar(true);
+    setFeedback(null);
+    try {
+      const vendorId = profile?.id || profile?.vendor_id || (typeof window !== 'undefined' ? localStorage.getItem('swaddesh_vendor_id') : null);
+      const res = await uploadVendorImage({
+        file,
+        type: 'avatar',
+        vendorId: vendorId || undefined,
+      });
+      if (res.success && res.url) {
+        setProfile((prev: any) => ({
+          ...prev,
+          avatarUrl: res.url,
+          logo_url: res.url,
+          logoUrl: res.url,
+          avatar_url: res.url,
+        }));
+        setFeedback({ type: 'success', text: 'Profile photo updated successfully!' });
+      } else {
+        setFeedback({ type: 'error', text: res.error || 'Failed to update photo.' });
+      }
+    } catch (err: any) {
+      setFeedback({ type: 'error', text: err.message || 'Error uploading photo.' });
+    } finally {
+      setIsUploadingAvatar(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  const handleCoverChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingCover(true);
+    setFeedback(null);
+    try {
+      const vendorId = profile?.id || profile?.vendor_id || (typeof window !== 'undefined' ? localStorage.getItem('swaddesh_vendor_id') : null);
+      const res = await uploadVendorImage({
+        file,
+        type: 'cover',
+        vendorId: vendorId || undefined,
+      });
+      if (res.success && res.url) {
+        setProfile((prev: any) => ({
+          ...prev,
+          bannerUrl: res.url,
+          banner_url: res.url,
+          coverUrl: res.url,
+        }));
+        setFeedback({ type: 'success', text: 'Cover photo updated successfully!' });
+      } else {
+        setFeedback({ type: 'error', text: res.error || 'Failed to update cover.' });
+      }
+    } catch (err: any) {
+      setFeedback({ type: 'error', text: err.message || 'Error uploading cover.' });
+    } finally {
+      setIsUploadingCover(false);
+      if (e.target) e.target.value = '';
+    }
+  };
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -97,6 +174,27 @@ export default function ProfilePage() {
   return (
     <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', paddingBottom: '40px' }}>
       
+      {/* Toast Feedback */}
+      {feedback && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '12px 18px',
+          borderRadius: '12px',
+          marginBottom: '16px',
+          fontSize: '14px',
+          fontWeight: 600,
+          background: feedback.type === 'success' ? '#dcfce7' : '#fee2e2',
+          color: feedback.type === 'success' ? '#166534' : '#b91c1c',
+          border: `1px solid ${feedback.type === 'success' ? '#86efac' : '#fca5a5'}`,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
+        }}>
+          {feedback.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+          <span>{feedback.text}</span>
+        </div>
+      )}
+
       {/* Cover Banner */}
       <div style={{ 
         width: '100%', 
@@ -110,55 +208,120 @@ export default function ProfilePage() {
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
           background: 'linear-gradient(135deg, var(--royal-maroon) 0%, #3B4623 100%)',
-          opacity: 0.9
+          opacity: 0.7,
+          zIndex: 1
         }} />
-        <Image src="/images/besan_ladoo.png" alt="Cover Image" fill style={{ objectFit: 'cover', mixBlendMode: 'overlay', opacity: 0.4 }} />
+        <Image 
+          src={profile?.bannerUrl || profile?.banner_url || profile?.coverUrl || "/images/besan_ladoo.png"} 
+          alt="Cover Image" 
+          fill 
+          style={{ objectFit: 'cover' }} 
+        />
         
-        <button style={{
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-          background: 'rgba(255,255,255,0.2)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255,255,255,0.4)',
-          borderRadius: '12px',
-          padding: '8px 16px',
-          color: 'white',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          fontSize: '13px',
-          fontWeight: 600,
-          cursor: 'pointer'
-        }}>
-          <Camera size={16} /> Edit Cover
+        <input 
+          ref={coverInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+          style={{ display: 'none' }}
+          onChange={handleCoverChange}
+        />
+
+        <button 
+          onClick={() => !isUploadingCover && coverInputRef.current?.click()}
+          disabled={isUploadingCover}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            background: 'rgba(0,0,0,0.5)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.4)',
+            borderRadius: '12px',
+            padding: '8px 16px',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: isUploadingCover ? 'not-allowed' : 'pointer',
+            zIndex: 2,
+            transition: 'all 0.2s ease'
+          }}
+        >
+          {isUploadingCover ? (
+            <>
+              <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+              <span>Uploading...</span>
+            </>
+          ) : (
+            <>
+              <Camera size={16} />
+              <span>Edit Cover</span>
+            </>
+          )}
         </button>
       </div>
 
       {/* Floating Profile Header */}
       <div className="profile-header-container">
         <div className="profile-header-info">
-          <div className="profile-avatar" style={{
-            borderRadius: '50%', 
-            border: '4px solid var(--royal-cream)', 
-            overflow: 'hidden', 
-            position: 'relative',
-            background: 'white',
-            boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
-          }}>
-            <Image src={profile?.avatarUrl || "/images/store_logo.png"} alt="Store Logo" fill style={{ objectFit: 'cover' }} />
+          <div 
+            className="profile-avatar" 
+            style={{
+              borderRadius: '50%', 
+              border: '4px solid var(--royal-cream)', 
+              overflow: 'hidden', 
+              position: 'relative',
+              background: 'white',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+              cursor: isUploadingAvatar ? 'not-allowed' : 'pointer',
+            }}
+            onClick={() => !isUploadingAvatar && avatarInputRef.current?.click()}
+            title="Click to edit profile photo"
+          >
+            <input 
+              ref={avatarInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+              style={{ display: 'none' }}
+              onChange={handleAvatarChange}
+            />
+
+            <Image 
+              src={profile?.avatarUrl || profile?.logo_url || profile?.logoUrl || profile?.avatar_url || "/images/store_logo.png"} 
+              alt={getShopName(profile) || "Store Logo"} 
+              fill 
+              style={{ objectFit: 'cover' }} 
+            />
+
             <div style={{
               position: 'absolute',
               bottom: 0,
               left: 0,
               right: 0,
-              background: 'rgba(0,0,0,0.5)',
+              background: isUploadingAvatar ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.6)',
               padding: '6px',
               display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
-              cursor: 'pointer'
+              gap: '4px',
+              color: 'white',
+              fontSize: '11px',
+              fontWeight: 600,
+              transition: 'background 0.2s',
             }}>
-              <Camera size={16} color="white" />
+              {isUploadingAvatar ? (
+                <>
+                  <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <Camera size={15} color="white" />
+                  <span>Edit</span>
+                </>
+              )}
             </div>
           </div>
 

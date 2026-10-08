@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User, Phone, Mail, MapPin, Briefcase, Clock, Loader2, Store } from 'lucide-react';
+import { User, Phone, Mail, MapPin, Briefcase, Clock, Loader2, Store, Camera } from 'lucide-react';
 import { fetchApi } from '../../../lib/api';
+import { uploadVendorImage } from '../../../lib/upload';
 import {
   unwrapProfile,
   getShopName,
@@ -36,8 +37,10 @@ const labelStyle: React.CSSProperties = {
 
 export default function EditProfilePage() {
   const router = useRouter();
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     shopName: '',
@@ -47,6 +50,7 @@ export default function EditProfilePage() {
     address: '',
     panGst: '',
     operatingHours: '09:00 AM - 09:00 PM (Mon - Sat)',
+    avatarUrl: '',
   });
 
   useEffect(() => {
@@ -62,6 +66,7 @@ export default function EditProfilePage() {
           address: merged?.address || '',
           panGst: merged?.panGst || '',
           operatingHours: merged?.operatingHours || '09:00 AM - 09:00 PM (Mon - Sat)',
+          avatarUrl: merged?.avatarUrl || merged?.logo_url || merged?.logoUrl || '/images/store_logo.png',
         });
       } catch (err: any) {
         setError(err.message || 'Failed to load profile');
@@ -71,6 +76,26 @@ export default function EditProfilePage() {
     };
     load();
   }, []);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingAvatar(true);
+    setError('');
+    try {
+      const res = await uploadVendorImage({ file, type: 'avatar' });
+      if (res.success && res.url) {
+        setForm((prev) => ({ ...prev, avatarUrl: res.url! }));
+      } else {
+        setError(res.error || 'Failed to upload photo.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Error uploading photo.');
+    } finally {
+      setIsUploadingAvatar(false);
+      if (e.target) e.target.value = '';
+    }
+  };
 
   const set = (field: keyof typeof form) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -100,6 +125,10 @@ export default function EditProfilePage() {
       address: form.address.trim(),
       panGst: form.panGst.trim(),
       operatingHours: form.operatingHours.trim(),
+      logo_url: form.avatarUrl,
+      avatarUrl: form.avatarUrl,
+      logoUrl: form.avatarUrl,
+      avatar_url: form.avatarUrl,
     };
 
     try {
@@ -148,6 +177,47 @@ export default function EditProfilePage() {
       )}
 
       <form onSubmit={handleSave} className="royal-card" style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Photo Upload Row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--royal-border)' }}>
+          <div style={{ width: '72px', height: '72px', borderRadius: '50%', overflow: 'hidden', position: 'relative', border: '3px solid var(--royal-cream)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', flexShrink: 0 }}>
+            <img src={form.avatarUrl || '/images/store_logo.png'} alt="Store Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+          <div>
+            <label style={{ ...labelStyle, display: 'block', marginBottom: '6px' }}>Store Profile Photo / Logo</label>
+            <input ref={avatarInputRef} type="file" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" style={{ display: 'none' }} onChange={handleAvatarUpload} />
+            <button
+              type="button"
+              onClick={() => !isUploadingAvatar && avatarInputRef.current?.click()}
+              disabled={isUploadingAvatar}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: '10px',
+                border: '1px solid var(--royal-border)',
+                background: '#FAF6F0',
+                color: 'var(--royal-maroon)',
+                fontWeight: 600,
+                fontSize: '13px',
+                cursor: isUploadingAvatar ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {isUploadingAvatar ? (
+                <>
+                  <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                  <span>Uploading...</span>
+                </>
+              ) : (
+                <>
+                  <Camera size={16} />
+                  <span>Upload New Photo</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
         <Field label="Store Name" icon={<Store size={18} color="var(--royal-text-gray)" />}>
           <input value={form.shopName} onChange={set('shopName')} required style={inputStyle} />
         </Field>

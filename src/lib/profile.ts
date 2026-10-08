@@ -80,6 +80,35 @@ export function mergeVendorProfile(fromApi: any, fromStorage: any = {}) {
   if (!getShopName(fromApi) && getShopName(fromStorage)) {
     merged.shopName = getShopName(fromStorage);
   }
+  const avatar = pickFirst(
+    fromStorage?.avatarUrl,
+    fromStorage?.logo_url,
+    fromStorage?.logoUrl,
+    fromStorage?.avatar_url,
+    fromApi?.avatarUrl,
+    fromApi?.logo_url,
+    fromApi?.logoUrl,
+    fromApi?.avatar_url,
+  );
+  if (avatar) {
+    merged.avatarUrl = avatar;
+    merged.logo_url = avatar;
+    merged.logoUrl = avatar;
+    merged.avatar_url = avatar;
+  }
+  const banner = pickFirst(
+    fromStorage?.bannerUrl,
+    fromStorage?.banner_url,
+    fromStorage?.coverUrl,
+    fromApi?.bannerUrl,
+    fromApi?.banner_url,
+    fromApi?.coverUrl,
+  );
+  if (banner) {
+    merged.bannerUrl = banner;
+    merged.coverUrl = banner;
+    merged.banner_url = banner;
+  }
   return merged;
 }
 
