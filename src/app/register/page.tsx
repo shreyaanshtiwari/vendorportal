@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { fetchApi } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 import {
   Eye, EyeOff, ArrowRight, ArrowLeft, Loader2,
   CheckCircle2, Store, MapPin, User,
@@ -93,11 +94,37 @@ export default function VendorRegisterPage() {
     setError('');
 
     try {
+      // 1. Create Supabase Auth user account with the vendor credentials
+      let registeredUserId: string | null = null;
+      try {
+        const { data: supaAuthData, error: supaErr } = await supabase.auth.signUp({
+          email: form.email.trim(),
+          password: form.password,
+          options: {
+            data: {
+              role: 'VENDOR',
+              full_name: form.ownerName.trim(),
+              phone: form.phone.trim(),
+              store_name: form.storeName.trim(),
+            },
+          },
+        });
+        if (supaAuthData?.user?.id) {
+          registeredUserId = supaAuthData.user.id;
+        } else if (supaErr) {
+          console.warn('Supabase signUp warning:', supaErr.message);
+        }
+      } catch (authException) {
+        console.warn('Supabase signUp exception:', authException);
+      }
+
+      // 2. Submit store registration with userId to backend
       await fetchApi('/vendor/register', {
         method: 'POST',
         body: JSON.stringify({
+          userId: registeredUserId,
           ownerName: form.ownerName,
-          email: form.email,
+          email: form.email.trim(),
           phone: form.phone,
           password: form.password,
           storeName: form.storeName,

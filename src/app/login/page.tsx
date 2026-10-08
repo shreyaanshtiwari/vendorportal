@@ -31,31 +31,100 @@ export default function VendorLoginPage() {
     setIsLoading(true);
     setError('');
 
+    const trimmedEmail = email.trim();
+
     try {
       // 1. Authoritative Supabase Auth Sign In
-      const { data: supaAuth, error: supaErr } = await supabase.auth.signInWithPassword({
-        email,
+      let supaRes = await supabase.auth.signInWithPassword({
+        email: trimmedEmail,
         password,
       });
 
-      if (!supaErr && supaAuth?.session?.access_token) {
-        const token = supaAuth.session.access_token;
-        const user = supaAuth.user;
+      // If initial sign-in fails, trigger self-healing recovery endpoint
+      if (supaRes.error || !supaRes.data?.session?.access_token) {
+        console.warn('Initial Supabase auth sign-in failed, attempting recovery resolution...', supaRes.error?.message);
+        try {
+          const res = await fetch('/api/vendor/auth-resolve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: trimmedEmail, password }),
+          });
+          const resolveData = await res.json().catch(() => null);
+
+          if (resolveData?.status === 'PENDING') {
+            setError(resolveData.error || 'Your store registration is pending admin approval. You can access the dashboard once approved.');
+            setIsLoading(false);
+            return;
+          }
+
+          if (resolveData?.status === 'REJECTED' || resolveData?.status === 'SUSPENDED') {
+            setError(resolveData.error || `Your vendor account status is ${resolveData.status}. Access is restricted.`);
+            setIsLoading(false);
+            return;
+          }
+
+          if (resolveData?.success && resolveData?.resolved) {
+            // Self-healing succeeded: retry Supabase sign-in with authoritative email
+            const targetLoginEmail = resolveData.actualEmail || trimmedEmail;
+            supaRes = await supabase.auth.signInWithPassword({
+              email: targetLoginEmail,
+              password,
+            });
+          } else if (resolveData?.error && !resolveData?.error.includes('No vendor store found')) {
+            setError(resolveData.error);
+            setIsLoading(false);
+            return;
+          }
+        } catch (resolveErr) {
+          console.error('Auth resolve network error:', resolveErr);
+        }
+      }
+
+      // Check if we have an active session
+      if (supaRes.data?.session?.access_token && supaRes.data?.user) {
+        const token = supaRes.data.session.access_token;
+        const user = supaRes.data.user;
 
         // Resolve vendor membership from Supabase or backend
         let resolvedVendorId: string | null = null;
         let resolvedProfile: any = null;
 
         try {
-          const { data: members, error: memErr } = await supabase
+          const { data: members } = await supabase
             .from('vendor_members')
-            .select('vendor_id, member_role, vendor:vendors(*)')
+            .select('vendor_id, member_role')
             .eq('user_id', user.id);
 
           if (members && members.length > 0) {
             resolvedVendorId = members[0].vendor_id;
-            resolvedProfile = members[0].vendor || {};
-          } else {
+            const { data: vRow } = await supabase
+              .from('vendors')
+              .select('*')
+              .eq('id', resolvedVendorId)
+              .maybeSingle();
+            resolvedProfile = vRow || {};
+          }
+
+          // If user exists in auth but missing in vendor_members, heal mapping
+          if (!resolvedVendorId) {
+            const res = await fetch('/api/vendor/auth-resolve', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: user.email || trimmedEmail, password }),
+            });
+            const rData = await res.json().catch(() => null);
+            if (rData?.vendorId) {
+              resolvedVendorId = rData.vendorId;
+              const { data: vRow } = await supabase
+                .from('vendors')
+                .select('*')
+                .eq('id', resolvedVendorId)
+                .maybeSingle();
+              resolvedProfile = vRow || {};
+            }
+          }
+
+          if (!resolvedVendorId) {
             // Fallback: fetch profile from backend
             const prof = await fetchApi('/vendor/profile', {
               headers: { Authorization: `Bearer ${token}` }
@@ -80,7 +149,18 @@ export default function VendorLoginPage() {
           return;
         }
 
-        // Check if vendor account is suspended
+        // Check if vendor account is pending approval
+        if (resolvedProfile?.status === 'PENDING') {
+          await supabase.auth.signOut();
+          localStorage.removeItem('vendor_token');
+          localStorage.removeItem('swaddesh_vendor_id');
+          localStorage.removeItem('vendor_profile');
+          setError('Your store registration is pending admin approval. You can access the dashboard once approved.');
+          setIsLoading(false);
+          return;
+        }
+
+        // Check if vendor account is suspended or rejected
         if (resolvedProfile?.status === 'SUSPENDED' || resolvedProfile?.status === 'REJECTED') {
           await supabase.auth.signOut();
           localStorage.removeItem('vendor_token');
@@ -101,39 +181,18 @@ export default function VendorLoginPage() {
         return;
       }
 
-      // 2. Fallback: attempt backend /vendor/login in case backend direct auth is active
-      try {
-        const data = await fetchApi('/vendor/login', {
-          method: 'POST',
-          body: JSON.stringify({ email, password }),
-        });
-
-        if (data && (data.token || data.access_token)) {
-          const token = data.token || data.access_token;
-          const vId = data.vendor?.id || data.vendor?.vendor_id || data.vendorId;
-
-          if (!vId) {
-            throw new Error('This account is not registered as an Artisan / Vendor. Please register your store first.');
-          }
-
-          localStorage.setItem('vendor_token', token);
-          localStorage.setItem('swaddesh_vendor_id', vId);
-          if (data.vendor) {
-            localStorage.setItem('vendor_profile', JSON.stringify(data.vendor));
-          }
-          router.push('/');
-          return;
-        }
-      } catch (backendErr: any) {
-        if (supaErr) throw supaErr;
-        throw backendErr;
+      // If Supabase sign-in couldn't be completed, display clear message
+      if (supaRes.error) {
+        throw supaRes.error;
       }
 
-      if (supaErr) throw supaErr;
-      throw new Error('Invalid email or password. Please try again.');
+      throw new Error('Invalid email or password. Please verify your credentials.');
     } catch (err: any) {
       let msg = err.message || 'Invalid email or password. Please try again.';
       msg = msg.replace(/^API request failed \[[^\]]+\]:\s*/, '');
+      if (msg.includes('Invalid login credentials')) {
+        msg = 'Invalid email or password. If you recently registered, please wait for admin approval.';
+      }
       setError(msg);
     } finally {
       setIsLoading(false);
